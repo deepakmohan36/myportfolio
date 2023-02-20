@@ -53,7 +53,7 @@ body {
   
   .aboutme {
     padding-top: 25px;
-    font-size: 3.5rem;
+    font-size: 2.5rem;
   }
 
   .box2{
@@ -92,48 +92,119 @@ body {
     margin-bottom: 2rem;
   }
   
-  .card {
+  .card1 {
     border: none;
     margin-bottom: 2rem;
   }
   
-  .card-img-top {
+  .card1-img-top {
     height: 200px;
     object-fit: cover;
   }
   
-  .card-title {
+  .card1-title {
     font-size: 1.5rem;
     margin-bottom: 0.5rem;
   }
   
-  .card-text {
+  .card1-text {
     margin-bottom: 1rem;
   }
   
-  /* Style the skills section */
-  .skills {
+
+
+ /** wallet **/
+
+.wallet {
+    padding: 15px 10px 0 30px;
     background-color: #fff;
-    padding: 4rem 0;
-  }
-  
-  .skills h2 {
+}
+
+.wallet h2{
     font-size: 2.5rem;
     margin-bottom: 2rem;
+    padding-left: 9%;
+}
+
+.wallet_box {
+    background: #fff;
+    margin-bottom: 100px;
+    transition: ease-in all 0.5s;
+    padding: 25px 15px 50px 15px;
+}
+
+.wallet_box img {
+    width: 100px;
+    height: 100px;
+    margin-left: 50%;
+    float: left;
+ }
+
+.wallet_box h3 {
+    color: #0c0b0b;
+    font-size: 22px;
+    text-transform: uppercase;
+    transition: ease-in all 0.5s;
+    font-weight: bold;
+    line-height: 22px;
+    padding: 20px 0 20px 0;
+   
+}
+
+.wallet_box p {
+    color: #191a1a;
+    font-size: 16px;
+    line-height: 38px;
+    transition: ease-in all 0.5s;
+}
+
+/* #wa_hover:hover.wallet_box {
+    background: #1b1b1b;
+    transition: ease-in all 0.5s;
+} */
+
+/* #wa_hover:hover i img {
+    width: 125px;
+    filter: invert();
+    transition: ease-in all 0.5s;
+} */
+
+#wa_hover:hover.wallet_box h3 {
+    color: #fff;
+    transition: ease-in all 0.5s;
+}
+
+#wa_hover:hover.wallet_box p {
+    color: #fff;
+    transition: ease-in all 0.5s;
+}
+
+/* 
+.hover-text {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    left: 50%; 
+    transform: translateX(-50%);
+    padding: 10px;
+    background-color:transparent;
+    color: #000000;
+    margin-left: 50px;
   }
   
-  .skills ul {
-    list-style-type: none;
-    margin-left: 0;
-    padding-left: 0;
-  }
+  i:hover .hover-text {
+    display: block;
+    color: black;
+    text-align: center;
+    padding-left: 10px;
+    
+  } */
   
-  .skills li {
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-  }
-  
-  /* Style the contact section */
+
+/** end wallet **/
+
+
+/* Style the contact section */
   .contact {
     background-color: #f9f9f9;
     padding: 4rem 0;
