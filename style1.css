@@ -1,7 +1,10 @@
 /* Set the background color for the whole page */
 body {
     background-color: #f2f2f2;
-  }
+    margin-top: 70px;
+}
+
+
   
   /* Style the header */
   .header {
@@ -62,16 +65,16 @@ body {
  } 
 
  .writeup{
+    font-weight: 500;
     width: 70%;
     margin-left: 30%;
+    text-align:justify;
  }
 
  .profilephoto img {
     width: 180px;
     height: 180px;
     border-radius: 50%;
-    /* margin-top: 20px; */
-    /* margin-right: 20px; */
     float: left;
  }
 
