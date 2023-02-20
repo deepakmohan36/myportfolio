@@ -45,14 +45,39 @@ body {
   /* Style the about section */
   .about {
     background-color: #fff;
-    padding: 4rem 0;
+    padding: 2rem 0;
   }
   
-  .about h2 {
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
+  .aboutme {
+    padding-top: 25px;
+    font-size: 3.5rem;
   }
-  
+
+  .box2{
+    margin-top: 15px;
+  }
+ .profilephoto{
+    padding-left: 5%;
+    padding-top: 10px;
+ } 
+
+ .writeup{
+    width: 70%;
+    margin-left: 30%;
+ }
+
+ .profilephoto img {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    /* margin-top: 20px; */
+    /* margin-right: 20px; */
+    float: left;
+ }
+
+
+
+ 
   /* Style the projects section */
   .projects {
     background-color: #f9f9f9;
