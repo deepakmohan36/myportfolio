@@ -1,0 +1,138 @@
+/* Set the background color for the whole page */
+body {
+    background-color: #f2f2f2;
+  }
+  
+  /* Style the header */
+  .header {
+    background-image: url("images/databg2.jpg");
+    background-size: cover;
+    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #ffffff;
+  }
+  
+  .header h1 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+  }
+  
+  /* Style the navbar */
+  .navbar {
+    background-color: #fff;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .navbar-brand {
+    font-size: 2rem;
+    font-family: Arial, sans-serif;
+    color: rgb(0, 0, 0) !important;
+    font-family: Roboto;
+  }
+  
+  .navbar-nav {
+    margin-left: auto;
+  }
+  
+  .nav-item {
+    margin-right: 1rem;
+  }
+  
+  /* Style the about section */
+  .about {
+    background-color: #fff;
+    padding: 4rem 0;
+  }
+  
+  .about h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  /* Style the projects section */
+  .projects {
+    background-color: #f9f9f9;
+    padding: 4rem 0;
+  }
+  
+  .projects h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .card {
+    border: none;
+    margin-bottom: 2rem;
+  }
+  
+  .card-img-top {
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .card-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .card-text {
+    margin-bottom: 1rem;
+  }
+  
+  /* Style the skills section */
+  .skills {
+    background-color: #fff;
+    padding: 4rem 0;
+  }
+  
+  .skills h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .skills ul {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+  }
+  
+  .skills li {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  /* Style the contact section */
+  .contact {
+    background-color: #f9f9f9;
+    padding: 4rem 0;
+  }
+  
+  .contact h2 {
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-control {
+    font-size: 1.2rem;
+  }
+  
+  .form-control:focus {
+    box-shadow: none;
+  }
+  
+  /* Style the footer */
+  .footer {
+    background-color: #ddd;
+    padding: 2rem 0;
+    text-align: center;
+    font-size: 1.2rem;
+  }
+  
