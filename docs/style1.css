@@ -207,16 +207,19 @@ body {
 /* Style the contact section */
   .contact {
     background-color: #f9f9f9;
-    padding: 4rem 0;
+    padding: 1rem 0;
+    width: 100%;
   }
   
   .contact h2 {
     font-size: 2.5rem;
     margin-bottom: 2rem;
+    padding-left: 2px;
   }
   
   .form-group {
-    margin-bottom: 1.5rem;
+    width: 300px;
+    margin-bottom: 1.5em;
   }
   
   .form-control {
@@ -224,14 +227,15 @@ body {
   }
   
   .form-control:focus {
-    box-shadow: none;
+    box-shadow:#0c0b0b;
   }
   
   /* Style the footer */
   .footer {
+    width: 100%;
     background-color: #ddd;
-    padding: 2rem 0;
-    text-align: center;
+    padding:0;
+    text-align:center;
     font-size: 1.2rem;
   }
   
