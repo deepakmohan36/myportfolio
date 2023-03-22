@@ -2,6 +2,7 @@
 <html>
 <head>
 	<title>Data Analysis Portfolio</title>
+	<link rel="icon" type="image/x-icon" href="images/logo2.png"
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="style1.css">
@@ -48,13 +49,8 @@
 	</header>
 
 	<!-- About Section -->
-	<section class="about">
-		<div class="container"> 
-
-                <div class = "aboutme">
-                    <h2>About Me</h2>
-                </div>
-            
+	<section class="about" id="">
+		<div class="container">
                 <div class="box2">
                     <div class = "profilephoto">
                      <img src="images/profile.jpeg" alt="Profile photo">
@@ -66,45 +62,7 @@
         </div>
 	</section>
 
-	<!-- Projects Section -->
-	<section class="projects" id="Projects">
-		<div class="container">
-			<h2>Projects</h2>
-			<div class="row">
-				<div class="col-md-4">
-					<div class="card1">
-					  <img class="card1-img-top" src="images/hranalytics.png" alt="Project 1">
-					  <div class="card1-body">
-					    <h5 class="card1-title">Employee Attrition Analysis</h5>
-					    <p class="card1-text">Tableau dashboard created by analyzing the attrition rate of employees.</p>
-					    <a href="https://public.tableau.com/app/profile/deepak.mohan/viz/HRAnalytics_16757716347030/HRANALYTICSDASHBOARD" class="btn btn-primary" target="_blank"  >View Project</a>
-					  </div>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="card1">
-					  <img class="card1-img-top" src="images/ukbank.png" alt="Project 2">
-					  <div class="card1-body">
-					    <h5 class="card1-title">Customer Insights Analysis</h5>
-					    <p class="card1-text">Tableau dashboard created by analyzing the customers of an imaginary bank in UK</p>
-					    <a href="https://public.tableau.com/app/profile/deepak.mohan/viz/TheUKBankCustomerDetails/Dashboard1" class="btn btn-primary" target="_blank" >View Project</a>
-					  </div>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="card1">
-                        <img class="card1-img-top" src="images/sql.jpeg" alt="Project 3">
-                        <div class="card1-body">
-                            <h5 class="card1-title">Music Store Querying</h5>
-                            <p class="card1-text">Unleashing the power of SQL to answer questions pertaining to a music store.</p>
-                            <a href="#" class="btn btn-primary">View Project</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
+	
 
 <!-- wallet -->
 <div class="wallet" id="Skills">
@@ -165,9 +123,95 @@
 </div>				
 <!-- end wallet -->
 
+<!-- Projects Section -->
+<section class="projects" id="Projects">
+	<div class="container">
+		<h2>Projects</h2>
+		<div class="row">
+			<div class="col-md-4">
+				<div class="card1">
+				  <img class="card1-img-top" src="images/hranalytics.png" alt="Project 1">
+				  <div class="card1-body">
+					<h5 class="card1-title">Employee Attrition Analysis</h5>
+					<p class="card1-text">Tableau dashboard created by analyzing the attrition rate of employees.</p>
+					<a href="https://public.tableau.com/app/profile/deepak.mohan/viz/HRAnalytics_16757716347030/HRANALYTICSDASHBOARD" class="btn btn-primary" target="_blank"  >View Project</a>
+				  </div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card1">
+				  <img class="card1-img-top" src="images/ukbank.png" alt="Project 2">
+				  <div class="card1-body">
+					<h5 class="card1-title">Customer Insights Analysis</h5>
+					<p class="card1-text">Tableau dashboard created by analyzing the customers of an imaginary bank in UK</p>
+					<a href="https://public.tableau.com/app/profile/deepak.mohan/viz/TheUKBankCustomerDetails/Dashboard1" class="btn btn-primary" target="_blank" >View Project</a>
+				  </div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card1">
+					<img class="card1-img-top" src="images/sql.jpeg" alt="Project 3">
+					<div class="card1-body">
+						<h5 class="card1-title">Music Store Querying</h5>
+						<p class="card1-text">Unleashing the power of SQL to answer questions pertaining to a music store.</p>
+						<a href="#" class="btn btn-primary">View Project</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
 
 
-<!-- Contact Section -->
+<!-- contact section -->
+<div id="contact" class="contact">
+	<div class="container">
+	   <div class="row">
+		  <div class="col-md-12">
+			 <div class="titlepage">
+				<h2>Let's Connect</h2>
+			 </div>
+		  </div>
+	   </div>
+	</div>
+	<div class="con_bg">
+	   <div class="container-fluid">
+		  <div class="row">
+			 <div class="col-md-5">
+				<form id="request" class="main_form">
+				   <div class="row">
+					  <div class="col-md-12 ">
+						 <input class="contactus" placeholder="Name" type="type" name="Name"> 
+					  </div>
+					  <div class="col-md-12">
+						 <input class="contactus" placeholder="Email" type="type" name="Email"> 
+					  </div>
+					  <div class="col-md-12">
+						 <input class="contactus" placeholder="Phone Number" type="type" name="Phone Number">                          
+					  </div>
+					  <div class="col-md-12">
+						 <input class="contactusmess" placeholder="Message" type="type" Message="Name">
+					  </div>
+					  <div class="col-md-12">
+						 <button class="send_btn">Send</button>
+					  </div>
+				   </div>
+				</form>
+			 </div>
+			 <div class="col-md-7">
+				<div class="co_tru">
+				   <figure><img src="images/contactme.jpg" alt="#"/></figure>
+				</div>
+			 </div>
+		  </div>
+	   </div>
+	</div>
+ </div>
+ <!-- end contact section -->
+
+
+
+<!-- Contact Section
 <section class="contact" id="contact">
 	<div class="container">
 		<h2>Contact Me</h2>
@@ -188,7 +232,7 @@
 		  </form>
 		  
 	</div>
-</section>
+</section> -->
 
 
 <!-- Footer -->

@@ -47,7 +47,8 @@ body {
   
   /* Style the about section */
   .about {
-    background-color: #fff;
+    background-color: #f9f9f9;
+    height: 400px;
     padding: 2rem 0;
   }
   
@@ -57,8 +58,10 @@ body {
   }
 
   .box2{
-    margin-top: 15px;
+    margin-top: 75px;
+    margin-bottom: 25px;
   }
+
  .profilephoto{
     padding-left: 5%;
     padding-top: 10px;
@@ -116,7 +119,8 @@ body {
  /** wallet **/
 
 .wallet {
-    padding: 15px 10px 0 30px;
+    padding: 55px 0px 0 30px;
+    padding-left: 165px;
     background-color: #fff;
 }
 
@@ -258,4 +262,91 @@ body {
     text-align:center;
     font-size: 1.2rem;
   }
-  
+  /** contact section **/
+
+.contact {
+  background: #fff;
+  padding-top: 90px;
+}
+
+.contact .titlepage {
+  text-align: left;
+  padding-bottom: 60px;
+}
+
+.main_form {
+  background: #fff;
+  border-radius: 20px;
+  max-width: 426px;
+  width: 100%;
+  float: right;
+}
+
+.main_form .contactus {
+  border: #cce9fe solid 1px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  width: 100%;
+  height: 60px;
+  background: transparent;
+  color: #8f8d8d;
+  font-size: 18px;
+  font-weight: normal;
+  padding: 0 15px;
+}
+
+.main_form .contactusmess {
+  border: #cce9fe solid 1px;
+  border-radius: 10px;
+  padding: 0 15px;
+  margin-bottom: 25px;
+  width: 100%;
+  padding-top: 9px;
+  padding-bottom: 14px;
+  background: transparent;
+  color: #8f8d8d;
+  font-size: 18px;
+  font-weight: normal;
+  height: 168px;
+}
+
+.send_btn {
+  background: #0f98f8;
+  font-weight: 500;
+  font-size: 18px;
+  width: 198px;
+  color: #fff;
+  height: 57px;
+  margin-top: 20px !important;
+  transition: ease-in all 0.5s;
+  text-transform: uppercase;
+  border-radius: 30px;
+  margin: 0 auto;
+  display: block;
+}
+
+.send_btn:hover {
+  background: #202121;
+  transition: ease-in all 0.5s;
+}
+
+#request *::placeholder {
+  color: #959596;
+  opacity: 1;
+}
+
+.co_tru {
+  padding-right: 50px;
+}
+
+.co_tru figure {
+  margin: 60;
+}
+
+.co_tru figure img {
+  width: 70%;
+  margin-left: 200px;
+}
+
+
+/** end contact section **/
