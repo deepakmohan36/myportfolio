@@ -257,8 +257,8 @@
                 <li><strong>Tech Stack</strong>: BigQuery, SQL, Looker Studio</li>
                 <li><strong>Project URL</strong>: <a href="https://lookerstudio.google.com/reporting/521bd185-4d88-496c-8e79-3af329238793" target="_blank">Dashboard link</a></li>
                 <li><strong>Completion Date</strong>: August 2024</li>
-                <li><strong>Client</strong>: Personal Project</li>
-                <li><strong>Data Source</strong>: Public Olympic Dataset</li>
+                <li><strong>LOD</strong>: Beginner</li>
+                <li><strong>Data Source</strong>: Kaggle Olympic Dataset</li>
               </ul>
             </div>
           </div>
@@ -349,38 +349,32 @@
             <div class="portfolio-code">
               <h3>Sample SQL Query</h3>
               <pre><code class="language-sql">
-SELECT
-  Games,
-  Country,
+SELECT 
+  player_id,
+  Name,
+  Sex,
+  Team,
+  NOC,
+  Year,
+  Season,
+  City,
   Sport,
-  COUNT(DISTINCT Event) as Events,
-  SUM(CASE WHEN Medal = 'Gold' THEN 1 ELSE 0 END) as Gold,
-  SUM(CASE WHEN Medal = 'Silver' THEN 1 ELSE 0 END) as Silver,
-  SUM(CASE WHEN Medal = 'Bronze' THEN 1 ELSE 0 END) as Bronze
-FROM `olympic_history.athlete_events`
-WHERE Medal IS NOT NULL
-GROUP BY Games, Country, Sport
-ORDER BY Games, Gold DESC, Silver DESC, Bronze DESC
-              </code></pre>
-            </div>
-          </div>
-        </div>
+  Event,
+  Medal,
+  CONCAT(Sport, '', Event) AS sport_event,
+  REGEXP_REPLACE(Team, r'-\d+$', '') AS cleaned_country_name,
+  CASE
+    WHEN Sex = 'M' THEN TRUE
+    ELSE FALSE
+  END AS male_only,
+  CASE
+    WHEN Sex = 'F' THEN TRUE
+    ELSE FALSE
+  END AS female_only
+FROM 
+  `portfolio.olympics.medals`;
 
-        <!-- Next Steps -->
-        <div class="row mt-5" data-aos="fade-up">
-          <div class="col-lg-12">
-            <div class="portfolio-description">
-              <h3>Future Enhancements</h3>
-              <p>
-                The Olympic Games dashboard project has several planned enhancements:
-              </p>
-              <ul>
-                <li>Integration with real-time data updates during Olympic events</li>
-                <li>Advanced predictive analytics for medal forecasting</li>
-                <li>Athlete profile pages with detailed performance metrics</li>
-                <li>Expanded historical context with economic and political factors</li>
-                <li>Mobile app version with offline capabilities</li>
-              </ul>
+              </code></pre>
             </div>
           </div>
         </div>
