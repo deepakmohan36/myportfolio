@@ -236,21 +236,96 @@
     }
   });
 
-  /**
-   * Animation on scroll
-   */
-  window.addEventListener('load', () => {
-    AOS.init({
-      duration: 1000,
-      easing: 'ease-in-out',
-      once: true,
-      mirror: false
-    })
-  });
+	  /**
+	   * Scroll progress indicator
+	   */
+	  const scrollProgress = select('#scroll-progress');
+	  if (scrollProgress) {
+	    const updateScrollProgress = () => {
+	      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+	      const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+	      const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+	      scrollProgress.style.width = progress + '%';
+	    }
+	    window.addEventListener('load', updateScrollProgress);
+	    onscroll(document, updateScrollProgress);
+	  }
 
-  /**
-   * Initiate Pure Counter 
-   */
-  new PureCounter();
+	  /**
+	   * Theme toggle (dark / light)
+	   */
+	  const THEME_STORAGE_KEY = 'dm-portfolio-theme';
+
+	  const applyTheme = (theme) => {
+	    const body = document.body;
+	    if (!body) return;
+
+	    body.classList.remove('dark-theme', 'light-theme');
+	    if (theme === 'light') {
+	      body.classList.add('light-theme');
+	    } else {
+	      body.classList.add('dark-theme');
+	    }
+
+	    const toggles = select('.theme-toggle', true);
+	    if (toggles) {
+	      toggles.forEach(btn => {
+	        btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+	      });
+	    }
+	  }
+
+	  const getPreferredTheme = () => {
+	    try {
+	      const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+	      if (stored === 'light' || stored === 'dark') {
+	        return stored;
+	      }
+	    } catch (e) {
+	      // localStorage might be unavailable; ignore and fallback
+	    }
+	    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+	      return 'light';
+	    }
+	    return 'dark';
+	  }
+
+	  window.addEventListener('load', () => {
+	    const initialTheme = getPreferredTheme();
+	    applyTheme(initialTheme);
+
+	    const toggles = select('.theme-toggle', true);
+	    if (toggles) {
+	      toggles.forEach(btn => {
+	        btn.addEventListener('click', () => {
+	          const isDark = document.body.classList.contains('dark-theme');
+	          const nextTheme = isDark ? 'light' : 'dark';
+	          applyTheme(nextTheme);
+	          try {
+	            window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+	          } catch (e) {
+	            // ignore write errors
+	          }
+	        });
+	      });
+	    }
+	  });
+
+	  /**
+	   * Animation on scroll
+	   */
+	  window.addEventListener('load', () => {
+	    AOS.init({
+	      duration: 1000,
+	      easing: 'ease-in-out',
+	      once: true,
+	      mirror: false
+	    })
+	  });
+
+	  /**
+	   * Initiate Pure Counter 
+	   */
+	  new PureCounter();
 
 })()
