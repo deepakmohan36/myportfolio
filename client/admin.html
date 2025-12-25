@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Admin - DMohan</title>
+  <meta name="description" content="Admin panel for DMohan blog">
+  <meta name="keywords" content="blog, admin">
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Raleway:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/css/style.css" rel="stylesheet">
+</head>
+<body class="dark-theme">
+  <div id="scroll-progress"></div>
+
+  <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme">
+    <span class="theme-toggle-icon icon-moon"><i class="bi bi-moon"></i></span>
+    <span class="theme-toggle-icon icon-sun"><i class="bi bi-sun"></i></span>
+  </button>
+
+  <main id="main" class="blog-main">
+    <section id="blog" class="blog section-bg">
+      <div class="container">
+        <div class="section-title mb-4">
+	          <h2 id="admin-page-title">Blog admin</h2>
+	        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <div>
+            <h3 class="h5 mb-1">Manage posts & users</h3>
+            <p id="blog-current-user" class="small text-muted mb-0"></p>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="blog.html" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-arrow-left"></i><span class="ms-1">Back to blog</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="blog-admin-actions d-flex flex-wrap gap-2 mb-3">
+          <button id="btn-toggle-create-post" type="button" class="btn btn-sm blog-admin-toggle-btn">Create a post</button>
+          <button id="btn-toggle-admin-panel" type="button" class="btn btn-sm blog-admin-toggle-btn">Manage users</button>
+          <button id="btn-toggle-analysis-panel" type="button" class="btn btn-sm blog-admin-toggle-btn">Blog analysis</button>
+        </div>
+
+	        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+	          <div class="d-flex align-items-center gap-2">
+	            <label for="blog-category-filter" class="form-label mb-0 small text-muted">Filter by category:</label>
+	            <select id="blog-category-filter" class="form-select form-select-sm" style="max-width: 220px;">
+	              <option value="">All categories</option>
+	              <option value="Tech">Tech</option>
+	              <option value="Life">Life</option>
+	              <option value="Career">Career</option>
+	              <option value="Projects">Projects</option>
+	              <option value="Philosophy">Philosophy</option>
+	              <option value="Notes">Notes</option>
+	              <option value="Other">Others</option>
+	            </select>
+	          </div>
+	          <div class="flex-grow-1 d-flex justify-content-start justify-content-md-end">
+	            <div class="input-group input-group-sm" style="max-width: 320px;">
+	              <span class="input-group-text bg-transparent text-muted">
+	                <i class="bi bi-search"></i>
+	              </span>
+	              <input
+	                type="search"
+	                id="blog-search"
+	                class="form-control form-control-sm"
+	                placeholder="Search posts by title, category, or content"
+	                aria-label="Search posts"
+	              >
+	            </div>
+	          </div>
+	        </div>
+
+        <div id="blog-status" class="alert d-none mt-1 mb-4" role="alert"></div>
+
+        <form id="create-post-form" class="mb-4 d-none">
+          <div class="form-group mb-3">
+            <label for="post-title" class="form-label">Title</label>
+            <input type="text" id="post-title" class="form-control" required>
+          </div>
+          <div class="form-group mb-3">
+            <label for="post-description" class="form-label">Description</label>
+            <textarea id="post-description" class="form-control" rows="2" placeholder="Short summary of the post"></textarea>
+          </div>
+          <div class="form-group mb-3">
+            <label for="post-category" class="form-label">Category</label>
+            <select id="post-category" class="form-select">
+              <option value="">Choose category (optional)</option>
+              <option value="Tech">Tech</option>
+              <option value="Life">Life</option>
+              <option value="Career">Career</option>
+              <option value="Projects">Projects</option>
+              <option value="Philosophy">Philosophy</option>
+              <option value="Notes">Notes</option>
+              <option value="Other">Others</option>
+            </select>
+          </div>
+          <div class="form-group mb-3">
+            <label for="post-body" class="form-label">Body</label>
+            <textarea id="post-body" class="form-control" rows="5" required></textarea>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button id="post-submit-publish-btn" type="submit" class="btn btn-success" data-status="published">Publish post</button>
+            <button id="post-submit-draft-btn" type="submit" class="btn btn-outline-secondary" data-status="draft">Save as draft</button>
+          </div>
+        </form>
+
+        <div id="blog-app" class="blog-app">
+          <div id="posts-list" class="list-group blog-posts"></div>
+          <nav id="posts-pagination" class="blog-pagination mt-3 d-flex justify-content-between align-items-center"></nav>
+        </div>
+
+	        <div id="admin-panel" class="mt-4 d-none">
+	          <div class="d-flex justify-content-between align-items-center mb-2">
+	            <h3 class="h6 mb-0">Admin: Manage users</h3>
+	            <p class="small text-muted mb-0 text-end ms-3">Promote or demote users between admin and reader roles.</p>
+	          </div>
+          <div id="admin-users-status" class="alert d-none mb-2" role="alert"></div>
+          <div class="table-responsive mb-3">
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Username</th>
+                  <th scope="col">Role</th>
+                  <th scope="col" class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+	        <div id="analysis-panel" class="mt-4 d-none">
+	          <div class="d-flex justify-content-between align-items-center mb-2">
+	            <h3 class="h6 mb-0">Admin: Posts overview</h3>
+	            <p class="small text-muted mb-0 text-end ms-3">See how posts are performing over time.</p>
+	          </div>
+	          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Title</th>
+                  <th scope="col" class="text-center">Likes</th>
+                  <th scope="col" class="text-center">Dislikes</th>
+                  <th scope="col" class="text-center">Like %</th>
+                  <th scope="col">Created</th>
+                  <th scope="col">Last updated</th>
+                  <th scope="col">Created by</th>
+                  <th scope="col">Last updated by</th>
+                </tr>
+              </thead>
+              <tbody id="admin-posts-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/typed.js/typed.umd.js"></script>
+  <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+
+	  <script>window.API_BASE_URL = 'https://portfolio-api-pjtpqbd74q-el.a.run.app';</script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
+

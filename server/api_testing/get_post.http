@@ -1,0 +1,2 @@
+GET http://localhost:8080/posts/1
+Authorization: {{your_jwt_token_here}}

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>Olympic Games Dashboard - Deepak Mohan Portfolio</title>
+  <meta content="Olympic Games data visualization project using BigQuery, SQL, and Looker Studio" name="description">
+  <meta content="Olympics, data visualization, dashboard, BigQuery, SQL, Looker Studio" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/logod.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+
+  <!-- Add highlight.js for code syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+
+  <!-- Add custom styles for the page -->
+  <style>
+    .portfolio-code {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 5px;
+      margin-top: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+    
+    .portfolio-code pre {
+      margin: 0;
+      padding: 0;
+    }
+    
+    .portfolio-code code {
+      border-radius: 4px;
+    }
+    
+    .portfolio-description ul {
+      padding-left: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .portfolio-description h4 {
+      margin-top: 15px;
+      color: #149ddd;
+    }
+
+    .project-header {
+      background: linear-gradient(rgba(5, 13, 24, 0.7), rgba(5, 13, 24, 0.7)), url("assets/img/portfolio/olympic_stadium.jpg");
+      background-size: cover;
+      background-attachment: fixed;
+      padding: 100px 0;
+      margin-bottom: 40px;
+      color: white;
+      position: relative;
+    }
+
+    .project-header:before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      background: linear-gradient(to top, #fff, transparent);
+    }
+
+    .project-header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .project-header p {
+      font-size: 20px;
+      max-width: 800px;
+      margin: 0 auto 20px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+
+    .tech-badge {
+      display: inline-block;
+      background: rgba(20, 157, 221, 0.9);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 50px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .tech-badge:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .project-stats {
+      background: #f9f9f9;
+      border-radius: 5px;
+      padding: 30px;
+      margin-top: 30px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    }
+
+    .stat-item {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: 700;
+      color: #149ddd;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    .timeline {
+      position: relative;
+      padding: 20px 0;
+    }
+
+    .timeline-item {
+      padding: 20px 30px;
+      border-left: 2px solid #149ddd;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .timeline-item:before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #149ddd;
+      left: -9px;
+      top: 20px;
+    }
+
+    .timeline-date {
+      font-weight: 600;
+      color: #149ddd;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+
+<body class="dark-theme">
+
+  <div id="scroll-progress"></div>
+
+  <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme">
+    <span class="theme-toggle-icon icon-moon"><i class="bi bi-moon"></i></span>
+    <span class="theme-toggle-icon icon-sun"><i class="bi bi-sun"></i></span>
+  </button>
+
+  <!-- ======= Mobile nav toggle button ======= -->
+  <i class="bi bi-list mobile-nav-toggle d-xl-none"></i>
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="d-flex flex-column">
+
+      <div class="profile">
+        <img src="assets/img/profile-img.jpg" alt="" class="img-fluid rounded-circle">
+        <h1 class="text-light"><a href="index.html">Deepak Mohan</a></h1>
+        <div class="social-links mt-3 text-center">
+          <a href="#" class="github"><i class="bx bxl-github"></i></a>
+          <a href="https://www.linkedin.com/in/deepakmohan36/" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+        </div>
+      </div>
+
+      <nav id="navbar" class="nav-menu navbar">
+        <ul>
+          <li><a href="index.html#hero" class="nav-link scrollto"><i class="bx bx-home"></i> <span>Home</span></a></li>
+          <li><a href="index.html#about" class="nav-link scrollto"><i class="bx bx-user"></i> <span>About</span></a></li>
+          <li><a href="index.html#portfolio" class="nav-link scrollto active"><i class="bx bx-book-content"></i> <span>Portfolio</span></a></li>
+          <li><a href="index.html#tech-stack" class="nav-link scrollto"><i class="bx bx-server"></i> <span>Technical Expertise</span></a></li>
+          <li><a href="https://topmate.io/deepak_mohan" target="_blank" rel="noopener noreferrer" class="nav-link"><i class="bx bx-envelope"></i> <span>Topmate</span></a></li>
+        </ul>
+      </nav><!-- .nav-menu -->
+    </div>
+  </header><!-- End Header -->
+
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2>Portfolio Details</h2>
+          <ol>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#portfolio">Portfolio</a></li>
+            <li>Olympic Games Dashboard</li>
+          </ol>
+        </div>
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+    <!-- Project Header Section -->
+    <section class="project-header text-center">
+      <div class="container">
+        <h1 data-aos="fade-up">Olympic Games Data Visualization</h1>
+        <p data-aos="fade-up" data-aos-delay="100">A comprehensive dashboard tracking Olympic medal performance from Athens 1896 to Paris 2024</p>
+        <div class="mt-4" data-aos="fade-up" data-aos-delay="200">
+          <span class="tech-badge">BigQuery</span>
+          <span class="tech-badge">SQL</span>
+          <span class="tech-badge">Looker Studio</span>
+          <span class="tech-badge">Data Visualization</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= Portfolio Details Section ======= -->
+    <section id="portfolio-details" class="portfolio-details">
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-8" data-aos="fade-up">
+            <div class="portfolio-details-slider swiper">
+              <div class="swiper-wrapper align-items-center">
+                <div class="swiper-slide">
+                  <img src="assets/img/portfolio/olympics_dash.png" alt="Olympic Games Dashboard Overview">
+                </div>
+                <div class="swiper-slide">
+                  <img src="assets/img/portfolio/olympics_bq.png" alt="BigQuery SQL Implementation">
+                </div>
+              </div>
+              <div class="swiper-pagination"></div>
+            </div>
+          </div>
+
+          <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="portfolio-info">
+              <h3>Project information</h3>
+              <ul>
+                <li><strong>Category</strong>: Dashboard Design</li>
+                <li><strong>Tech Stack</strong>: BigQuery, SQL, Looker Studio</li>
+                <li><strong>Project URL</strong>: <a href="https://lookerstudio.google.com/reporting/521bd185-4d88-496c-8e79-3af329238793" target="_blank">Dashboard link</a></li>
+                <li><strong>Completion Date</strong>: August 2024</li>
+                <li><strong>LOD</strong>: Beginner</li>
+                <li><strong>Data Source</strong>: Kaggle Olympic Dataset</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project Overview -->
+        <div class="row mt-5">
+          <div class="col-lg-12" data-aos="fade-up">
+            <div class="portfolio-description">
+              <h2>Project Overview</h2>
+              <p>
+                This comprehensive Olympic Games dashboard visualizes medal tallies and performance metrics from the 1896 Athens Games to the 2024 Paris Olympics. Using Google BigQuery for data processing and Looker Studio for visualization, this project offers interactive insights into Olympic history spanning over 128 years.
+              </p>
+              <p>
+                The dashboard allows users to explore medal counts by country, sport, and Olympic Games, with interactive filters to customize the view. It provides both historical trends and detailed breakdowns of Olympic performance.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project Stats -->
+        <div class="row project-stats" data-aos="fade-up">
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-item">
+              <div class="stat-number">128+</div>
+              <div class="stat-label">Years of Olympic Data</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-item">
+              <div class="stat-number">200+</div>
+              <div class="stat-label">Countries Analyzed</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-item">
+              <div class="stat-number">50K+</div>
+              <div class="stat-label">Athlete Records</div>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <div class="stat-item">
+              <div class="stat-number">30+</div>
+              <div class="stat-label">Olympic Games</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Features -->
+        <div class="row mt-5">
+          <div class="col-lg-6" data-aos="fade-up">
+            <div class="portfolio-description">
+              <h4>Key Features</h4>
+              <ul>
+                <li>Historical medal tracking across 128+ years of Olympic history</li>
+                <li>Country performance comparisons with interactive filters</li>
+                <li>Sport-specific analysis showing medal distribution</li>
+                <li>Athlete performance metrics and record tracking</li>
+                <li>Interactive time-series visualization of medal counts</li>
+                <li>Geographical distribution of Olympic success</li>
+                <li>Comparison tools for analyzing country performance</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="portfolio-description">
+              <h4>Technical Implementation</h4>
+              <p>
+                Data was extracted from public Olympic datasets, transformed using SQL in BigQuery to create optimized data models, and visualized through custom Looker Studio dashboards with interactive elements.
+              </p>
+              <p>
+                The project involved:
+              </p>
+              <ul>
+                <li>Data cleaning and normalization in BigQuery</li>
+                <li>Complex SQL queries for aggregating medal counts</li>
+                <li>Custom calculated fields for performance metrics</li>
+                <li>Interactive dashboard design with filters and parameters</li>
+                <li>Responsive layout for mobile and desktop viewing</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Code Sample Section -->
+        <div class="row mt-5" data-aos="fade-up">
+          <div class="col-lg-12">
+            <div class="portfolio-code">
+              <h3>Sample SQL Query</h3>
+              <pre><code class="language-sql">
+SELECT 
+  player_id,
+  Name,
+  Sex,
+  Team,
+  NOC,
+  Year,
+  Season,
+  City,
+  Sport,
+  Event,
+  Medal,
+  CONCAT(Sport, '', Event) AS sport_event,
+  REGEXP_REPLACE(Team, r'-\d+$', '') AS cleaned_country_name,
+  CASE
+    WHEN Sex = 'M' THEN TRUE
+    ELSE FALSE
+  END AS male_only,
+  CASE
+    WHEN Sex = 'F' THEN TRUE
+    ELSE FALSE
+  END AS female_only
+FROM 
+  `portfolio.olympics.medals`;
+
+              </code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="row mt-5 text-center" data-aos="fade-up">
+          <div class="col-lg-12">
+            <a href="https://lookerstudio.google.com/reporting/521bd185-4d88-496c-8e79-3af329238793" target="_blank" class="btn btn-primary">View Live Dashboard</a>
+            <a href="https://topmate.io/deepak_mohan" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary ml-3">Contact Me</a>
+          </div>
+        </div>
+      </div>
+    </section><!-- End Portfolio Details Section -->
+
+  </main><!-- End #main -->
+
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/typed.js/typed.umd.js"></script>
+  <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>

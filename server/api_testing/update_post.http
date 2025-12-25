@@ -1,0 +1,8 @@
+PUT http://localhost:8080/posts/1
+Content-Type: application/json
+Authorization: {{your_jwt_token_here}}
+
+{
+  "title": "Updated blog title",
+  "content": "Updated blog content."
+}

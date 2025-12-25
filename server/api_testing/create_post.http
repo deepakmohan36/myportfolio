@@ -1,0 +1,8 @@
+POST http://localhost:8080/posts
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjYzMTMwNDQsInVzZXJJZCI6MiwidXNlcm5hbWUiOiJ0ZXN0dXNlcjIifQ.cvSHWxCeIEtSzf_RpHFtxJ4bg88-AeTgRsNj7-fITUM
+
+{
+  "title": "My first blog post",
+  "content": "This is the content of my first blog post."
+}

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>iPortfolio Bootstrap Template - Index</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="assets/img/favicon.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="assets/css/style.css" rel="stylesheet">
+
+  <!-- Add custom styles for the page -->
+  <style>
+    /* Enhanced styling for project info section */
+    .portfolio-info {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      transition: all 0.3s ease;
+    }
+    
+    .portfolio-info:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .portfolio-info h3 {
+      color: #173b6c;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      position: relative;
+    }
+    
+    .portfolio-info h3:after {
+      content: '';
+      position: absolute;
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: #149ddd;
+      bottom: 0;
+      left: 0;
+    }
+    
+    .info-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 25px 0;
+    }
+    
+    .info-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid #eef0f2;
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .info-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .info-list li:hover {
+      padding-left: 5px;
+      color: #149ddd;
+    }
+    
+    .info-list li i {
+      color: #149ddd;
+      font-size: 16px;
+    }
+    
+    .info-list li strong {
+      margin-right: 8px;
+      color: #173b6c;
+      font-weight: 600;
+    }
+    
+    .project-link {
+      color: #149ddd;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      border-bottom: 1px dashed #149ddd;
+      padding-bottom: 2px;
+    }
+    
+    .project-link:hover {
+      color: #0e76a8;
+      border-bottom: 1px solid #0e76a8;
+    }
+    
+    .project-link i {
+      font-size: 14px;
+    }
+    
+    /* Enhanced styling for the tech section */
+    .tech-section {
+      margin-top: 30px;
+      padding-top: 25px;
+      border-top: 1px solid #e9ecef;
+      position: relative;
+    }
+    
+    .tech-section:before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background: #149ddd;
+    }
+    
+    .tech-section h4 {
+      color: #173b6c;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .tech-section h4 i {
+      color: #149ddd;
+    }
+    
+    .tech-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 50px;
+      background-color: #149ddd !important;
+      transition: all 0.3s ease;
+      box-shadow: 0 3px 10px rgba(20, 157, 221, 0.2);
+    }
+    
+    .badge i {
+      margin-right: 8px;
+      font-size: 18px;
+    }
+    
+    .badge:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(20, 157, 221, 0.3);
+      background-color: #0e76a8 !important;
+    }
+    
+    .portfolio-description {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      margin-top: 25px;
+      transition: all 0.3s ease;
+    }
+    
+    .portfolio-description:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .portfolio-description h2 {
+      color: #173b6c;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      position: relative;
+    }
+    
+    .portfolio-description h2:after {
+      content: '';
+      position: absolute;
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: #149ddd;
+      bottom: 0;
+      left: 0;
+    }
+    
+    .portfolio-description p {
+      line-height: 1.8;
+      color: #444;
+    }
+    
+    /* Helper classes */
+    .me-1 {
+      margin-right: 0.25rem;
+    }
+    
+    .me-2 {
+      margin-right: 0.5rem;
+    }
+    
+    .ms-1 {
+      margin-left: 0.25rem;
+    }
+    
+    .mt-3 {
+      margin-top: 1rem;
+    }
+    
+    .mt-4 {
+      margin-top: 1.5rem;
+    }
+    
+    /* Project header */
+    .project-header {
+      background: linear-gradient(rgba(5, 13, 24, 0.7), rgba(5, 13, 24, 0.7)), url("assets/img/portfolio/hr_analytics_bg.jpg") center center;
+      background-size: cover;
+      padding: 100px 0;
+      margin-bottom: 40px;
+      color: white;
+      position: relative;
+    }
+    
+    .project-header h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .project-header p {
+      font-size: 20px;
+      max-width: 800px;
+      margin: 0 auto 20px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+
+<body class="dark-theme">
+
+  <div id="scroll-progress"></div>
+
+  <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme">
+    <span class="theme-toggle-icon icon-moon"><i class="bi bi-moon"></i></span>
+    <span class="theme-toggle-icon icon-sun"><i class="bi bi-sun"></i></span>
+  </button>
+
+  <!-- ======= Mobile nav toggle button ======= -->
+  <i class="bi bi-list mobile-nav-toggle d-xl-none"></i>
+
+   <!-- ======= Header ======= -->
+   <header id="header">
+    <div class="d-flex flex-column">
+
+      <div class="profile">
+        <img src="assets/img/profile-img.jpg" alt="" class="img-fluid rounded-circle">
+        <h1 class="text-light"><a href="index.html">Deepak Mohan</a></h1>
+        <div class="social-links mt-3 text-center">
+          <!-- <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a> -->
+          <!-- <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
+          <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a> -->
+          <a href="#" class="github"><i class="bx bxl-github"></i></a>
+          <a href="https://www.linkedin.com/in/deepakmohan36/" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+        </div>
+      </div>
+
+      <nav id="navbar" class="nav-menu navbar">
+        <ul>
+          <li><a href="index.html#hero" class="nav-link scrollto"><i class="bx bx-home"></i> <span>Home</span></a></li>
+          <li><a href="index.html#about" class="nav-link scrollto"><i class="bx bx-user"></i> <span>About</span></a></li>
+          <li><a href="index.html#portfolio" class="nav-link scrollto"><i class="bx bx-book-content"></i> <span>Portfolio</span></a></li>
+          <li><a href="index.html#tech-stack" class="nav-link scrollto"><i class="bx bx-server"></i> <span>Technical Expertise</span></a></li>
+          <li><a href="https://topmate.io/deepak_mohan" target="_blank" rel="noopener noreferrer" class="nav-link"><i class="bx bx-envelope"></i> <span>Topmate</span></a></li>
+        </ul>
+      </nav><!-- .nav-menu -->
+    </div>
+  </header><!-- End Header -->
+
+  <main id="main">
+
+    <!-- ======= Breadcrumbs ======= -->
+    <section id="breadcrumbs" class="breadcrumbs">
+      <div class="container">
+
+        <div class="d-flex justify-content-between align-items-center">
+          <h2>Portfolio Details</h2>
+          <ol>
+            <li><a href="index.html">Home</a></li>
+            <li>Portfolio Details</li>
+          </ol>
+        </div>
+
+      </div>
+    </section><!-- End Breadcrumbs -->
+
+    <!-- ======= Portfolio Details Section ======= -->
+    <section id="portfolio-details" class="portfolio-details">
+      <div class="container">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-8">
+            <div class="portfolio-details-slider swiper">
+              <div class="swiper-wrapper align-items-center">
+
+                <div class="swiper-slide">
+                  <img src="assets/img/portfolio/portfolio-details-2.jpg" alt="">
+                </div>
+
+                <!-- <div class="swiper-slide">
+                  <img src="assets/img/portfolio/portfolio-details-2.jpg" alt="">
+                </div>
+
+                <div class="swiper-slide">
+                  <img src="assets/img/portfolio/portfolio-details-3.jpg" alt="">
+                </div> -->
+
+              </div>
+              <div class="swiper-pagination"></div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="portfolio-info">
+              <h3>Project information</h3>
+              <ul>
+                <li><strong>Category</strong>: Dashboard Design</li>
+                <li><strong>Tech Stack</strong>: Google Sheets, Tableau</li>
+                <li><strong>Project URL</strong>: <a href="https://public.tableau.com/app/profile/deepak.mohan/viz/HRAnalytics_16757716347030/HRANALYTICSDASHBOARD">Tableau link</a></li>
+            </ul>
+            </div>
+            <div class="portfolio-description">
+              <h2>Data Visualization</h2>
+              <p>
+                This endeavor involved data extraction from YouTube utilizing APIs, the configuration of a virtual machine instance on Google Cloud, and the meticulous deployment of a Python ETL code within Airflow on GCP. The project's successful execution underscores the importance of robust data handling in today's analytics landscape.
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section><!-- End Portfolio Details Section -->
+
+  </main><!-- End #main -->
+
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+  <script src="assets/vendor/typed.js/typed.umd.js"></script>
+  <script src="assets/vendor/waypoints/noframework.waypoints.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="assets/js/main.js"></script>
+
+</body>
+
+</html>
