@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -78,7 +79,10 @@ func GetCommentsForPost(postID int64) ([]Comment, error) {
 	ctx := context.Background()
 	col := postCommentsCollection()
 
-	iter := col.Where("post_id", "==", postID).OrderBy("created_at", firestore.Asc).Documents(ctx)
+		// Use a simple equality filter and perform the ordering in memory. This
+		// avoids requiring a composite Firestore index on (post_id, created_at)
+		// while still returning comments in ascending creation time.
+		iter := col.Where("post_id", "==", postID).Documents(ctx)
 	defer iter.Stop()
 
 	var comments []Comment
@@ -107,7 +111,12 @@ func GetCommentsForPost(postID int64) ([]Comment, error) {
 		})
 	}
 
-	return comments, nil
+		// Oldest first.
+		sort.Slice(comments, func(i, j int) bool {
+			return comments[i].CreatedAt.Before(comments[j].CreatedAt)
+		})
+
+		return comments, nil
 }
 
 // GetCommentByID fetches a single comment document by its Firestore ID.
