@@ -1283,30 +1283,9 @@
 			        item.appendChild(descriptionEl);
 			      }
 					
-			      // In modern layout, we intentionally omit the body content snippet
-			      // so cards stay clean and focused on title/metadata.
-			      if (!isModernLayout) {
-			        const fullBody = post.content || '';
-			        const snippet = fullBody.length > MAX_PREVIEW_LENGTH
-			          ? `${fullBody.slice(0, MAX_PREVIEW_LENGTH).trimEnd()}…`
-			          : fullBody;
-			
-			        const body = document.createElement('p');
-			        body.className = 'mb-2 blog-post-content';
-					        body.textContent = (isAdmin || isEditor) ? fullBody : snippet;
-			        body.dataset.full = fullBody;
-			        body.dataset.snippet = snippet;
-					        body.dataset.expanded = (isAdmin || isEditor) ? 'true' : 'false';
-			        item.appendChild(body);
-			
-					        if (!isAdmin && !isEditor && fullBody.length > MAX_PREVIEW_LENGTH) {
-			          const toggleBtn = document.createElement('button');
-			          toggleBtn.type = 'button';
-			          toggleBtn.className = 'btn btn-link btn-sm p-0 blog-toggle-body';
-			          toggleBtn.textContent = 'Read more';
-			          item.appendChild(toggleBtn);
-			        }
-			      }
+				      // We no longer render the body content snippet in the cards layout.
+				      // Full post content is available via the centered reader view and
+				      // the admin edit form.
 		
 					      // Footer row: reactions on the left (card layout only), expand icon
 					      // or date on the right.
