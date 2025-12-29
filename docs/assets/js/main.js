@@ -662,8 +662,9 @@
 
 								        const authorEl = document.createElement('span');
 								        authorEl.className = 'blog-post-comment-author fw-semibold';
-								        const rawAuthor = comment.author_name || comment.authorName || '';
-								        authorEl.textContent = rawAuthor || 'Anonymous';
+						const rawAuthor = comment.author_name || comment.authorName || '';
+						const displayName = deriveDisplayNameFromIdentifier(rawAuthor) || rawAuthor || 'Anonymous';
+						authorEl.textContent = displayName;
 
 								        const metaEl = document.createElement('span');
 								        metaEl.className = 'blog-post-comment-meta small text-muted';
