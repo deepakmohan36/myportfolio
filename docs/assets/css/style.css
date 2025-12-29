@@ -1758,19 +1758,21 @@ section {
 			  justify-content: flex-start;
 			}
 
-		.blog-posts.blog-posts-modern .blog-post-item {
-		  position: relative;
-		  flex: 1 1 100%;
-		  max-width: 100%;
-		  min-height: 360px;
-		  margin-bottom: 0;
-		  padding: 190px 1.4rem 1.1rem;
-		  border-radius: 26px;
-		  overflow: hidden;
-		  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.65);
-		  display: flex;
-		  flex-direction: column;
-		}
+			.blog-posts.blog-posts-modern .blog-post-item {
+			  position: relative;
+			  flex: 1 1 100%;
+			  max-width: 100%;
+			  min-height: 300px;
+			  margin-bottom: 0;
+			  /* Header image/gradient is 150px tall; give a bit more top padding so
+			     there's a visible gap of card background between image and title. */
+			  padding: 170px 1.4rem 1.1rem;
+			  border-radius: 26px;
+			  overflow: hidden;
+			  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.65);
+			  display: flex;
+			  flex-direction: column;
+			}
 
 		@media (min-width: 768px) {
 		  .blog-posts.blog-posts-modern .blog-post-item {
@@ -1812,38 +1814,58 @@ section {
 	  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
 	}
 
-	.blog-posts.blog-posts-modern .blog-post-item::before {
-	  content: '';
-	  position: absolute;
-	  top: 0;
-	  left: 0;
-	  right: 0;
-		  height: 180px;
-	  background:
-	    linear-gradient(135deg, #38bdf8, #6366f1);
-	  opacity: 0.9;
-	}
+			.blog-posts.blog-posts-modern .blog-post-item::before {
+			  content: '';
+			  position: absolute;
+			  top: 0;
+			  /* Extend into the card's horizontal padding so the gradient
+			     touches the card's rounded edges with no side gaps. */
+			  left: -1.4rem;
+			  right: -1.4rem;
+			  /* Match the visual header height. Content starts lower (170px),
+			     leaving a clean gap between gradient/image and title. */
+			  height: 150px;
+			  background:
+			    linear-gradient(135deg, #38bdf8, #6366f1);
+			  opacity: 0.9;
+			}
 
 	.light-theme .blog-posts.blog-posts-modern .blog-post-item::before {
 	  opacity: 1;
 	}
 
-		.blog-posts.blog-posts-modern .blog-post-cover-wrapper {
-		  position: absolute;
-		  top: 16px;
-		  left: 18px;
-		  right: 18px;
-		  height: 160px;
-		  border-radius: 18px;
-		  overflow: hidden;
-		}
+			.blog-posts.blog-posts-modern .blog-post-cover-wrapper {
+			  position: absolute;
+			  /* Cover matches the 150px header height and extends into the
+			     horizontal padding so it reaches the true card edges. */
+			  top: 0;
+			  left: -1.4rem;
+			  right: -1.4rem;
+			  height: 150px;
+			  border-radius: 26px;
+			  overflow: hidden;
+			}
 
-		.blog-posts.blog-posts-modern .blog-post-cover {
-		  display: block;
-		  width: 100%;
-		  height: 100%;
-		  object-fit: cover;
-		}
+			.blog-posts.blog-posts-modern .blog-post-cover {
+			  display: block;
+			  width: 100%;
+			  height: 100%;
+			  object-fit: cover;
+			  /* Aggressive zoom so the subject fills the header and background is mostly cropped. */
+			  transform: scale(1.6);
+			  transform-origin: center center;
+			  will-change: transform;
+			  /* Center by default; we can override per-cover below if needed. */
+			  object-position: center center;
+			}
+
+			/* Example of per-cover focal tweaks using the cover key on the item.
+			   If a particular image still shows too much background on one side,
+			   we can shift its focal point without affecting the others, e.g.:
+			   .blog-posts.blog-posts-modern .blog-post-item[data-cover-key="cover-10"] .blog-post-cover {
+			     object-position: right center;
+			   }
+			*/
 
 		.blog-posts.blog-posts-modern .blog-post-title {
 		  font-size: 1.1rem;
@@ -1856,7 +1878,10 @@ section {
 		}
 		
 		.blog-posts.blog-posts-modern .blog-post-footer {
-		  margin-top: auto;
+			  /* Pin the footer (date + category + line) to the bottom of the
+			     modern card regardless of title length. Use !important so this
+			     wins over the generic .blog-post-footer rule defined later. */
+			  margin-top: auto !important;
 		  padding-top: 0.45rem;
 		  border-top: 1px solid rgba(148, 163, 184, 0.35);
 		}
