@@ -315,3 +315,31 @@ func FindOrCreateUserByEmail(email, googleSub string) (*User, error) {
 
 	return newUser, nil
 }
+
+	// GetUserByID looks up a user by their numeric ID.
+	func GetUserByID(userID int64) (*User, error) {
+		ctx := context.Background()
+		col := usersCollection()
+
+		iter := col.Where("id", "==", userID).Limit(1).Documents(ctx)
+		defer iter.Stop()
+
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			return nil, ErrUserNotFound
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to query user by id: %w", err)
+		}
+
+		var data firestoreUserDoc
+		if err := doc.DataTo(&data); err != nil {
+			return nil, fmt.Errorf("failed to decode user document: %w", err)
+		}
+
+		return &User{
+			ID:       data.ID,
+			Username: data.Username,
+			Role:     data.Role,
+		}, nil
+	}

@@ -266,6 +266,24 @@ func (p Post) Delete() error {
 		}
 	}
 
+	// Best-effort cleanup of comments associated with this post.
+	commentsIter := client.Collection("post_comments").Where("post_id", "==", p.ID).Documents(ctx)
+	defer commentsIter.Stop()
+
+	for {
+		doc, err := commentsIter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to iterate comments for deletion: %w", err)
+		}
+
+		if _, err := doc.Ref.Delete(ctx); err != nil {
+			return fmt.Errorf("failed to delete comment document: %w", err)
+		}
+	}
+
 	if _, err := postsCollection().Doc(strconv.FormatInt(p.ID, 10)).Delete(ctx); err != nil {
 		if status.Code(err) == codes.NotFound {
 			return ErrPostNotFound

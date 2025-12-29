@@ -2152,6 +2152,83 @@ section {
 	color: #111827;
 }
 
+	.blog-post-reader-comments {
+		margin-top: 1.5rem;
+		padding-top: 1rem;
+		border-top: 1px solid rgba(148, 163, 184, 0.4);
+	}
+
+	.dark-theme .blog-post-reader-comments {
+		border-top-color: rgba(148, 163, 184, 0.55);
+	}
+
+	.light-theme .blog-post-reader-comments {
+		border-top-color: rgba(15, 23, 42, 0.12);
+	}
+
+	.blog-post-reader-comments-title {
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #9ca3af;
+	}
+
+	.light-theme .blog-post-reader-comments-title {
+		color: #6b7280;
+	}
+
+	.blog-post-reader-comments-list {
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.blog-post-comment {
+		font-size: 0.86rem;
+		line-height: 1.5;
+		padding: 0.5rem 0.6rem;
+		border-radius: 0.5rem;
+		background: rgba(15, 23, 42, 0.4);
+	}
+
+	.light-theme .blog-post-comment {
+		background: #f3f4f6;
+	}
+
+	.blog-post-comment-header {
+		margin-bottom: 0.15rem;
+	}
+
+	.blog-post-comment-author {
+		font-size: 0.82rem;
+	}
+
+	.blog-post-comment-meta {
+		font-size: 0.76rem;
+		opacity: 0.8;
+	}
+
+	.blog-post-comment-content {
+		margin-bottom: 0;
+		white-space: pre-wrap;
+	}
+
+	.blog-post-comment-empty {
+		font-size: 0.8rem;
+	}
+
+	.blog-post-reader-comments-more {
+		font-size: 0.8rem;
+	}
+
+	.blog-post-reader-comment-input {
+		resize: vertical;
+		min-height: 2.25rem;
+		max-height: 7rem;
+	}
+
 	/* Make the close icon clearly visible over the dark reader background */
 	.dark-theme .blog-post-reader-dialog .btn-close {
 		filter: invert(1) grayscale(100%) brightness(200%);

@@ -597,7 +597,126 @@
 										  let postReaderDialog = null;
 										  let postReaderBody = null;
 										  let postReaderReactions = null;
-										  let postReaderInitialized = false;
+								  let postReaderInitialized = false;
+								  let postReaderCommentsList = null;
+								  let postReaderCommentsMoreBtn = null;
+								  let postReaderCommentForm = null;
+								  let postReaderCommentInput = null;
+								  let postReaderCommentsTitle = null;
+								  let postReaderCurrentPostId = null;
+								  let postReaderComments = [];
+								  let postReaderShowAllComments = false;
+								  const POST_READER_INITIAL_COMMENTS = 10;
+
+								  const resetPostReaderCommentsState = () => {
+								    postReaderComments = [];
+								    postReaderShowAllComments = false;
+								    if (postReaderCommentsList) {
+								      postReaderCommentsList.innerHTML = '';
+								    }
+								    if (postReaderCommentsMoreBtn) {
+								      postReaderCommentsMoreBtn.classList.add('d-none');
+								    }
+								    if (postReaderCommentInput) {
+								      postReaderCommentInput.value = '';
+								    }
+								    if (postReaderCommentsTitle) {
+								      postReaderCommentsTitle.textContent = 'Comments';
+								    }
+								  };
+
+								  const renderPostReaderComments = () => {
+								    if (!postReaderCommentsList) return;
+								    const commentsArray = Array.isArray(postReaderComments) ? postReaderComments : [];
+								    const total = commentsArray.length;
+
+								    postReaderCommentsList.innerHTML = '';
+
+								    if (postReaderCommentsTitle) {
+								      if (!total) {
+								        postReaderCommentsTitle.textContent = 'Comments';
+								      } else if (total === 1) {
+								        postReaderCommentsTitle.textContent = '1 comment';
+								      } else {
+								        postReaderCommentsTitle.textContent = `${total} comments`;
+								      }
+								    }
+
+								    if (!total) {
+								      const empty = document.createElement('li');
+								      empty.className = 'blog-post-comment-empty small text-muted';
+								      empty.textContent = 'No comments yet. Be the first to share a thought.';
+								      postReaderCommentsList.appendChild(empty);
+								    } else {
+								      const limit = postReaderShowAllComments ? total : POST_READER_INITIAL_COMMENTS;
+								      const startIndex = Math.max(total - limit, 0);
+								      const visible = commentsArray.slice(startIndex);
+
+								      visible.forEach((comment) => {
+								        if (!comment) return;
+								        const li = document.createElement('li');
+								        li.className = 'blog-post-comment';
+
+								        const header = document.createElement('div');
+								        header.className = 'blog-post-comment-header d-flex justify-content-between align-items-baseline';
+
+								        const authorEl = document.createElement('span');
+								        authorEl.className = 'blog-post-comment-author fw-semibold';
+								        const rawAuthor = comment.author_name || comment.authorName || '';
+								        authorEl.textContent = rawAuthor || 'Anonymous';
+
+								        const metaEl = document.createElement('span');
+								        metaEl.className = 'blog-post-comment-meta small text-muted';
+								        const createdRaw = comment.created_at || comment.createdAt || comment.CreatedAt;
+								        if (createdRaw) {
+								          const createdDate = new Date(createdRaw);
+								          if (!Number.isNaN(createdDate.getTime())) {
+								            metaEl.textContent = formatPrettyDate(createdDate);
+								          }
+								        }
+
+								        header.appendChild(authorEl);
+								        header.appendChild(metaEl);
+
+								        const contentEl = document.createElement('p');
+								        contentEl.className = 'blog-post-comment-content mb-0';
+								        contentEl.textContent = comment.content || '';
+
+								        li.appendChild(header);
+								        li.appendChild(contentEl);
+								        postReaderCommentsList.appendChild(li);
+								      });
+								    }
+
+								    if (!postReaderCommentsMoreBtn) return;
+								    if (total > POST_READER_INITIAL_COMMENTS) {
+								      postReaderCommentsMoreBtn.classList.remove('d-none');
+								      if (postReaderShowAllComments) {
+								        postReaderCommentsMoreBtn.textContent = 'Show less';
+								      } else {
+								        postReaderCommentsMoreBtn.textContent = `Show all ${total} comments`;
+								      }
+								    } else {
+								      postReaderCommentsMoreBtn.classList.add('d-none');
+								    }
+								  };
+
+								  const loadPostComments = async (postId) => {
+								    if (!postId || !postReaderCommentsList) return;
+								    const numericId = Number(postId);
+								    if (!Number.isFinite(numericId) || numericId <= 0) return;
+
+								    try {
+								      const response = await apiRequest(`/posts/${numericId}/comments`, { method: 'GET' });
+								      postReaderComments = Array.isArray(response) ? response : [];
+								      renderPostReaderComments();
+								    } catch (err) {
+								      console.error(err);
+								      // We keep the comments area silent on failure to avoid
+								      // overwhelming the reader. Main blog status remains available
+								      // for error messaging.
+								    }
+								  };
 						
 					  const closePostReader = () => {
 					    if (!postReaderOverlay) return;
@@ -678,21 +797,49 @@
 							    if (!postReaderOverlay) {
 							      postReaderOverlay = document.createElement('div');
 							      postReaderOverlay.id = 'post-reader-overlay';
-							      postReaderOverlay.className = 'blog-post-reader-overlay d-none';
-								      postReaderOverlay.innerHTML = `
-								        <div class="blog-post-reader-dialog" role="dialog" aria-modal="true">
-								          <div class="blog-post-reader-header d-flex justify-content-end mb-2">
-								            <button type="button" class="btn-close blog-post-reader-close" aria-label="Close"></button>
-								          </div>
-								          <div class="blog-post-reader-body"></div>
-								          <div class="blog-post-reader-reactions mt-3 d-flex align-items-center"></div>
-								        </div>
-								      `;
+								      postReaderOverlay.className = 'blog-post-reader-overlay d-none';
+									      postReaderOverlay.innerHTML = `
+									        <div class="blog-post-reader-dialog" role="dialog" aria-modal="true">
+									          <div class="blog-post-reader-header d-flex justify-content-end mb-2">
+									            <button type="button" class="btn-close blog-post-reader-close" aria-label="Close"></button>
+									          </div>
+									          <div class="blog-post-reader-body"></div>
+									          <div class="blog-post-reader-reactions mt-3 d-flex align-items-center"></div>
+									          <div class="blog-post-reader-comments mt-4">
+									            <div class="d-flex justify-content-between align-items-baseline mb-2">
+									              <h6 class="blog-post-reader-comments-title mb-0">Comments</h6>
+									            </div>
+									            <ul class="blog-post-reader-comments-list list-unstyled mb-2"></ul>
+									            <button type="button" class="btn btn-link btn-sm p-0 blog-post-reader-comments-more d-none"></button>
+									            <form class="blog-post-reader-comment-form mt-3">
+									              <label class="visually-hidden" for="blog-post-reader-comment-input">Add a comment</label>
+									              <div class="input-group input-group-sm">
+									                <textarea
+									                  id="blog-post-reader-comment-input"
+									                  class="form-control blog-post-reader-comment-input"
+									                  rows="2"
+									                  placeholder="Add a comment..."
+									                  maxlength="2000"
+									                ></textarea>
+									                <button
+									                  type="submit"
+									                  class="btn btn-primary blog-post-reader-comment-submit"
+									                >Post</button>
+									              </div>
+									            </form>
+									          </div>
+									        </div>
+									      `;
 							      document.body.appendChild(postReaderOverlay);
 							    }
 							    postReaderDialog = postReaderOverlay.querySelector('.blog-post-reader-dialog');
 							    postReaderBody = postReaderOverlay.querySelector('.blog-post-reader-body');
-								    postReaderReactions = postReaderOverlay.querySelector('.blog-post-reader-reactions');
+								    			    postReaderReactions = postReaderOverlay.querySelector('.blog-post-reader-reactions');
+								    postReaderCommentsList = postReaderOverlay.querySelector('.blog-post-reader-comments-list');
+								    postReaderCommentsMoreBtn = postReaderOverlay.querySelector('.blog-post-reader-comments-more');
+								    postReaderCommentForm = postReaderOverlay.querySelector('.blog-post-reader-comment-form');
+								    postReaderCommentInput = postReaderOverlay.querySelector('.blog-post-reader-comment-input');
+								    postReaderCommentsTitle = postReaderOverlay.querySelector('.blog-post-reader-comments-title');
 						
     const closeBtn = postReaderOverlay.querySelector('.blog-post-reader-close');
     if (closeBtn) {
@@ -715,89 +862,153 @@
 						        closePostReader();
 						      }
 						    });
+
+								    if (postReaderCommentsMoreBtn) {
+								      postReaderCommentsMoreBtn.addEventListener('click', (event) => {
+								        event.preventDefault();
+								        postReaderShowAllComments = !postReaderShowAllComments;
+								        renderPostReaderComments();
+								        if (postReaderDialog) {
+								          postReaderDialog.scrollTop = postReaderDialog.scrollHeight;
+								        }
+								      });
+								    }
+
+								    if (postReaderCommentForm && postReaderCommentInput) {
+								      postReaderCommentForm.addEventListener('submit', async (event) => {
+								        event.preventDefault();
+
+								        if (!currentUser || !authToken) {
+								          showBlogStatus('Please log in to comment on posts.', 'error');
+								          return;
+								        }
+
+								        const raw = postReaderCommentInput.value || '';
+								        const content = raw.trim();
+								        if (!content) {
+								          return;
+								        }
+
+								        const postId = postReaderCurrentPostId;
+								        if (!postId) return;
+
+								        try {
+								          const numericId = Number(postId);
+								          if (!Number.isFinite(numericId) || numericId <= 0) return;
+
+								          const data = await apiRequest(`/posts/${numericId}/comments`, {
+								            method: 'POST',
+								            headers: { 'Content-Type': 'application/json' },
+								            body: JSON.stringify({ content })
+								          });
+
+								          const newComment = data && (data.comment || data.Comment);
+								          if (newComment) {
+								            postReaderComments.push(newComment);
+								            postReaderShowAllComments = true;
+								            postReaderCommentInput.value = '';
+								            renderPostReaderComments();
+								          } else {
+								            // Fallback: reload full comment thread if response
+								            // did not include the created comment.
+								            await loadPostComments(postId);
+								          }
+								        } catch (err) {
+								          console.error(err);
+								          showBlogStatus(err.message || 'Could not post comment.', 'error');
+								        }
+								      });
+								    }
 						
 						    postReaderInitialized = true;
 						  };
 						
-										  const openPostInReader = (item) => {
-										    ensurePostReader();
-										    if (!postReaderOverlay || !postReaderBody) return;
-										  
-										    const postId = item.dataset.postId || '';
-										    const body = item.dataset.body || '';
-										  
-										    // Render Markdown (headings, lists, emphasis) for a better reading
-										    // experience in the overlay, while keeping stored content as plain
-										    // text/Markdown.
-										    postReaderBody.innerHTML = renderBasicMarkdown(body);
-													
-													  // Render reactions inside the expanded reader view.
-													  if (postReaderReactions) {
-													    postReaderReactions.innerHTML = '';
-													    if (postId) {
-													      const numericId = Number(postId);
-													      const post = allPosts.find((p) => p && p.id === numericId);
-													      const likesCount = post && typeof post.likes_count === 'number' ? post.likes_count : 0;
-													      const dislikesCount = post && typeof post.dislikes_count === 'number'
-													        ? post.dislikes_count
-													        : 0;
-													
-													      const reactions = document.createElement('div');
-													      reactions.className = 'd-flex align-items-center blog-reactions';
-													      reactions.dataset.postId = String(postId);
-													
-      const likeBtn = document.createElement('button');
-      likeBtn.type = 'button';
-      likeBtn.className = 'btn btn-sm btn-outline-success blog-like-btn blog-reaction-btn';
-      likeBtn.setAttribute('aria-label', 'Like post');
-													      const likeIcon = document.createElement('span');
-													      likeIcon.className = 'blog-reaction-icon';
-													      likeIcon.textContent = '👍';
-													      const likeCount = document.createElement('span');
-													      likeCount.className = 'blog-like-count';
-													      likeCount.textContent = String(likesCount);
-													      likeBtn.appendChild(likeIcon);
-													      likeBtn.appendChild(likeCount);
-
-      // In the reader, handle like clicks directly on the button so the
-      // overlay never interprets them as background clicks.
-      likeBtn.addEventListener('click', async (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        await handleReactionClick(likeBtn);
-      });
-													
-      const dislikeBtn = document.createElement('button');
-      dislikeBtn.type = 'button';
-      dislikeBtn.className = 'btn btn-sm btn-outline-danger blog-dislike-btn blog-reaction-btn';
-      dislikeBtn.setAttribute('aria-label', 'Dislike post');
-													      const dislikeIcon = document.createElement('span');
-													      dislikeIcon.className = 'blog-reaction-icon';
-													      dislikeIcon.textContent = '👎';
-													      const dislikeCount = document.createElement('span');
-													      dislikeCount.className = 'blog-dislike-count';
-													      dislikeCount.textContent = String(dislikesCount);
-													      dislikeBtn.appendChild(dislikeIcon);
-													      dislikeBtn.appendChild(dislikeCount);
-
-      // Same for dislike: keep the reader open and only update reactions.
-      dislikeBtn.addEventListener('click', async (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        await handleReactionClick(dislikeBtn);
-      });
-													
-													      reactions.appendChild(likeBtn);
-													      reactions.appendChild(dislikeBtn);
-													      postReaderReactions.appendChild(reactions);
-													    }
-													  }
-													
+								  const openPostInReader = (item) => {
+								    ensurePostReader();
+								    if (!postReaderOverlay || !postReaderBody) return;
+								  
+								    const postId = item.dataset.postId || '';
+								    const body = item.dataset.body || '';
+								  
+								    postReaderCurrentPostId = postId || null;
+								    resetPostReaderCommentsState();
+								  
+								    // Render Markdown (headings, lists, emphasis) for a better reading
+								    // experience in the overlay, while keeping stored content as plain
+								    // text/Markdown.
+								    postReaderBody.innerHTML = renderBasicMarkdown(body);
+								  
+								    // Render reactions inside the expanded reader view.
+								    if (postReaderReactions) {
+								      postReaderReactions.innerHTML = '';
+								      if (postId) {
+								        const numericId = Number(postId);
+								        const post = allPosts.find((p) => p && p.id === numericId);
+								        const likesCount = post && typeof post.likes_count === 'number' ? post.likes_count : 0;
+								        const dislikesCount = post && typeof post.dislikes_count === 'number'
+								          ? post.dislikes_count
+								          : 0;
+								      
+								        const reactions = document.createElement('div');
+								        reactions.className = 'd-flex align-items-center blog-reactions';
+								        reactions.dataset.postId = String(postId);
+								      
+								        const likeBtn = document.createElement('button');
+								        likeBtn.type = 'button';
+								        likeBtn.className = 'btn btn-sm btn-outline-success blog-like-btn blog-reaction-btn';
+								        likeBtn.setAttribute('aria-label', 'Like post');
+								        const likeIcon = document.createElement('span');
+								        likeIcon.className = 'blog-reaction-icon';
+								        likeIcon.textContent = '👍';
+								        const likeCount = document.createElement('span');
+								        likeCount.className = 'blog-like-count';
+								        likeCount.textContent = String(likesCount);
+								        likeBtn.appendChild(likeIcon);
+								        likeBtn.appendChild(likeCount);
+								      
+								        // In the reader, handle like clicks directly on the button so the
+								        // overlay never interprets them as background clicks.
+								        likeBtn.addEventListener('click', async (event) => {
+								          event.preventDefault();
+								          event.stopPropagation();
+								          await handleReactionClick(likeBtn);
+								        });
+								      
+								        const dislikeBtn = document.createElement('button');
+								        dislikeBtn.type = 'button';
+								        dislikeBtn.className = 'btn btn-sm btn-outline-danger blog-dislike-btn blog-reaction-btn';
+								        dislikeBtn.setAttribute('aria-label', 'Dislike post');
+								        const dislikeIcon = document.createElement('span');
+								        dislikeIcon.className = 'blog-reaction-icon';
+								        dislikeIcon.textContent = '👎';
+								        const dislikeCount = document.createElement('span');
+								        dislikeCount.className = 'blog-dislike-count';
+								        dislikeCount.textContent = String(dislikesCount);
+								        dislikeBtn.appendChild(dislikeIcon);
+								        dislikeBtn.appendChild(dislikeCount);
+								      
+								        // Same for dislike: keep the reader open and only update reactions.
+								        dislikeBtn.addEventListener('click', async (event) => {
+								          event.preventDefault();
+								          event.stopPropagation();
+								          await handleReactionClick(dislikeBtn);
+								        });
+								      
+								        reactions.appendChild(likeBtn);
+								        reactions.appendChild(dislikeBtn);
+								        postReaderReactions.appendChild(reactions);
+								      }
+								    }
+								  
+								    if (postId) {
+								      loadPostComments(postId);
+								    }
+								  
 								    postReaderOverlay.classList.remove('d-none');
 								    document.body.classList.add('post-reader-open');
 								    if (postReaderDialog) {
-									      postReaderDialog.setAttribute('tabindex', '-1');
-									      postReaderDialog.focus();
+								      postReaderDialog.setAttribute('tabindex', '-1');
+								      postReaderDialog.focus();
 								    }
 								  };
 						

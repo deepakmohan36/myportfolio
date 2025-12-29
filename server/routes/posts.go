@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"example.com/blog_backend/models"
 	"github.com/gin-gonic/gin"
@@ -230,3 +231,174 @@ func deletePost(context *gin.Context) {
 
 	context.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
 }
+
+	// getPostComments returns all comments for a given post. The caller must be
+	// authenticated; visibility of draft posts is enforced by the post readers
+	// themselves.
+	func getPostComments(c *gin.Context) {
+		postID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+		if err != nil || postID <= 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse post ID"})
+			return
+		}
+
+		// Ensure the post exists so we can return a sensible 404.
+		if _, err := models.GetPostByID(postID); err != nil {
+			if errors.Is(err, models.ErrPostNotFound) {
+				c.JSON(http.StatusNotFound, gin.H{"message": "Post not found"})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not load post comments"})
+			return
+		}
+
+		comments, err := models.GetCommentsForPost(postID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not load post comments"})
+			return
+		}
+
+		c.JSON(http.StatusOK, comments)
+	}
+
+	// createPostComment creates a new comment for the given post on behalf of the
+	// authenticated user.
+	func createPostComment(c *gin.Context) {
+		postID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+		if err != nil || postID <= 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse post ID"})
+			return
+		}
+
+		// Ensure the post exists before creating a comment.
+		if _, err := models.GetPostByID(postID); err != nil {
+			if errors.Is(err, models.ErrPostNotFound) {
+				c.JSON(http.StatusNotFound, gin.H{"message": "Post not found"})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create comment"})
+			return
+		}
+
+		var body struct {
+			Content string `json:"content"`
+		}
+		if err := c.ShouldBindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request body"})
+			return
+		}
+
+		content := strings.TrimSpace(body.Content)
+		if content == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Comment content is required"})
+			return
+		}
+		if len([]rune(content)) > 2000 {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Comment is too long (max 2000 characters)."})
+			return
+		}
+
+		userID := c.GetInt64("userId")
+		user, err := models.GetUserByID(userID)
+		if err != nil {
+			if errors.Is(err, models.ErrUserNotFound) {
+				c.JSON(http.StatusUnauthorized, gin.H{"message": "User not found"})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create comment"})
+			return
+		}
+
+		comment, err := models.CreateComment(postID, userID, user.Username, content)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not create comment"})
+			return
+		}
+
+		c.JSON(http.StatusCreated, gin.H{"message": "Comment created successfully", "comment": comment})
+	}
+
+	// updatePostComment updates the content of a comment owned by the
+	// authenticated user.
+	func updatePostComment(c *gin.Context) {
+		commentID := c.Param("commentId")
+		if commentID == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Comment ID is required"})
+			return
+		}
+
+		var body struct {
+			Content string `json:"content"`
+		}
+		if err := c.ShouldBindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request body"})
+			return
+		}
+
+		content := strings.TrimSpace(body.Content)
+		if content == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Comment content is required"})
+			return
+		}
+		if len([]rune(content)) > 2000 {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Comment is too long (max 2000 characters)."})
+			return
+		}
+
+		userID := c.GetInt64("userId")
+		updated, err := models.UpdateCommentContent(commentID, userID, content)
+		if err != nil {
+			if errors.Is(err, models.ErrCommentNotFound) {
+				c.JSON(http.StatusNotFound, gin.H{"message": "Comment not found"})
+				return
+			}
+			if errors.Is(err, models.ErrUnauthorizedCommentAction) {
+				c.JSON(http.StatusForbidden, gin.H{"message": "You are not allowed to edit this comment"})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update comment"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Comment updated successfully", "comment": updated})
+	}
+
+	// deletePostComment deletes a comment. Admins can delete any comment;
+	// regular users can delete only their own comments.
+	func deletePostComment(c *gin.Context) {
+		commentID := c.Param("commentId")
+		if commentID == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Comment ID is required"})
+			return
+		}
+
+		comment, err := models.GetCommentByID(commentID)
+		if err != nil {
+			if errors.Is(err, models.ErrCommentNotFound) {
+				c.JSON(http.StatusNotFound, gin.H{"message": "Comment not found"})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete comment"})
+			return
+		}
+
+		userID := c.GetInt64("userId")
+		roleValue, _ := c.Get("role")
+		role, _ := roleValue.(string)
+
+		if role != "admin" && comment.UserID != userID {
+			c.JSON(http.StatusForbidden, gin.H{"message": "You are not allowed to delete this comment"})
+			return
+		}
+
+		if err := models.DeleteComment(commentID); err != nil {
+			if errors.Is(err, models.ErrCommentNotFound) {
+				c.JSON(http.StatusNotFound, gin.H{"message": "Comment not found"})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete comment"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "Comment deleted successfully"})
+	}
