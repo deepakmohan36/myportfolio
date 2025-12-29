@@ -573,14 +573,12 @@
 										    return htmlLines.join('\n');
 										  };
 								
-								  // Centered reader view overlay for blog posts
-									  let postReaderOverlay = null;
-									  let postReaderDialog = null;
-									  let postReaderTitle = null;
-									  let postReaderMeta = null;
-									  let postReaderBody = null;
-									  let postReaderReactions = null;
-									  let postReaderInitialized = false;
+										  // Centered reader view overlay for blog posts
+										  let postReaderOverlay = null;
+										  let postReaderDialog = null;
+										  let postReaderBody = null;
+										  let postReaderReactions = null;
+										  let postReaderInitialized = false;
 						
 					  const closePostReader = () => {
 					    if (!postReaderOverlay) return;
@@ -655,32 +653,26 @@
 					    }
 					  };
 								
-								  const ensurePostReader = () => {
-						    if (postReaderInitialized) return;
-						    postReaderOverlay = document.getElementById('post-reader-overlay');
-						    if (!postReaderOverlay) {
-						      postReaderOverlay = document.createElement('div');
-						      postReaderOverlay.id = 'post-reader-overlay';
-						      postReaderOverlay.className = 'blog-post-reader-overlay d-none';
-									      postReaderOverlay.innerHTML = `
-									        <div class="blog-post-reader-dialog" role="dialog" aria-modal="true" aria-labelledby="post-reader-title">
-									          <div class="blog-post-reader-header d-flex justify-content-between align-items-start mb-2">
-									            <div>
-									              <h3 id="post-reader-title" class="blog-post-reader-title mb-1"></h3>
-									              <p class="blog-post-reader-meta small mb-0 text-muted"></p>
-									            </div>
-									            <button type="button" class="btn-close blog-post-reader-close" aria-label="Close"></button>
-									          </div>
-									          <div class="blog-post-reader-body"></div>
-									          <div class="blog-post-reader-reactions mt-3 d-flex align-items-center"></div>
-									        </div>
-									      `;
-						      document.body.appendChild(postReaderOverlay);
-						    }
-						    postReaderDialog = postReaderOverlay.querySelector('.blog-post-reader-dialog');
-						    postReaderTitle = postReaderOverlay.querySelector('.blog-post-reader-title');
-						    postReaderMeta = postReaderOverlay.querySelector('.blog-post-reader-meta');
-						    postReaderBody = postReaderOverlay.querySelector('.blog-post-reader-body');
+										  const ensurePostReader = () => {
+							    if (postReaderInitialized) return;
+							    postReaderOverlay = document.getElementById('post-reader-overlay');
+							    if (!postReaderOverlay) {
+							      postReaderOverlay = document.createElement('div');
+							      postReaderOverlay.id = 'post-reader-overlay';
+							      postReaderOverlay.className = 'blog-post-reader-overlay d-none';
+								      postReaderOverlay.innerHTML = `
+								        <div class="blog-post-reader-dialog" role="dialog" aria-modal="true">
+								          <div class="blog-post-reader-header d-flex justify-content-end mb-2">
+								            <button type="button" class="btn-close blog-post-reader-close" aria-label="Close"></button>
+								          </div>
+								          <div class="blog-post-reader-body"></div>
+								          <div class="blog-post-reader-reactions mt-3 d-flex align-items-center"></div>
+								        </div>
+								      `;
+							      document.body.appendChild(postReaderOverlay);
+							    }
+							    postReaderDialog = postReaderOverlay.querySelector('.blog-post-reader-dialog');
+							    postReaderBody = postReaderOverlay.querySelector('.blog-post-reader-body');
 								    postReaderReactions = postReaderOverlay.querySelector('.blog-post-reader-reactions');
 						
     const closeBtn = postReaderOverlay.querySelector('.blog-post-reader-close');
@@ -708,42 +700,13 @@
 						    postReaderInitialized = true;
 						  };
 						
-								  const openPostInReader = (item) => {
-								    ensurePostReader();
-								    if (!postReaderOverlay || !postReaderTitle || !postReaderBody) return;
-								
-													  const postId = item.dataset.postId || '';
-													  const title = item.dataset.title || '';
-													  const body = item.dataset.body || '';
-													  const category = item.dataset.category || '';
-													  const description = item.dataset.description || '';
-														  const metaEl = item.querySelector('small.text-muted');
-														  let createdText = metaEl ? (metaEl.textContent || '') : '';
-														  if (!createdText && item.dataset.created) {
-														    const created = new Date(item.dataset.created);
-														    if (!Number.isNaN(created.getTime())) {
-														      createdText = formatPrettyDate(created);
-														    }
-														  }
-													
-													  postReaderTitle.textContent = title;
-													
-													  if (postReaderMeta) {
-													    if (description) {
-													      // When expanded, prefer showing the post description instead of
-													      // timestamp/category, as requested.
-													      postReaderMeta.textContent = description;
-													    } else {
-													      const metaParts = [];
-													      if (createdText) metaParts.push(createdText.trim());
-													      if (category) {
-													        const displayCategory = category === 'Other' ? 'Others' : category;
-													        metaParts.push(displayCategory);
-													      }
-													      postReaderMeta.textContent = metaParts.join(' • ');
-													    }
-													  }
-													
+										  const openPostInReader = (item) => {
+										    ensurePostReader();
+										    if (!postReaderOverlay || !postReaderBody) return;
+										  
+										    const postId = item.dataset.postId || '';
+										    const body = item.dataset.body || '';
+										  
 										    // Render Markdown (headings, lists, emphasis) for a better reading
 										    // experience in the overlay, while keeping stored content as plain
 										    // text/Markdown.
