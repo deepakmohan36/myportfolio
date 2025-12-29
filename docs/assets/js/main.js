@@ -421,18 +421,37 @@
 			    statusEl.classList.add('alert', alertClass);
 			  };
 
-									  let allPosts = [];
-									  let activeCategoryFilter = '';
-									  let editingPostId = null;
-									  let currentPostsPage = 1;
-									  let totalPostsPages = 1;
-									  const POSTS_PER_PAGE = 10;
-									  let currentPostsLayout = 'modern'; // 'card' | 'modern'
+										  let allPosts = [];
+										  let activeCategoryFilter = '';
+										  let editingPostId = null;
+										  let currentPostsPage = 1;
+										  let totalPostsPages = 1;
+										  const POSTS_PER_PAGE = 10;
+										  let currentPostsLayout = 'modern'; // 'card' | 'modern'
 							  let currentPostsSortField = null; // 'title' | 'category' | 'created_at'
 							  let currentPostsSortDirection = 'asc'; // 'asc' | 'desc'
 							  let currentPostsSearchQuery = ''; // free-text search across title, description, category, and body
-								  // Map of user ID -> username for admin post analytics.
-									  let adminUsersById = {};
+
+							  const POST_COVER_IMAGES = {
+							    'cover-1': 'assets/img/blog-covers/cover-1.jpg',
+							    'cover-2': 'assets/img/blog-covers/cover-2.jpg',
+							    'cover-3': 'assets/img/blog-covers/cover-3.jpg',
+							    'cover-4': 'assets/img/blog-covers/cover-4.jpg',
+							    'cover-5': 'assets/img/blog-covers/cover-5.jpg',
+							    'cover-6': 'assets/img/blog-covers/cover-6.jpg',
+							    'cover-7': 'assets/img/blog-covers/cover-7.jpg',
+							    'cover-8': 'assets/img/blog-covers/cover-8.jpg',
+							    'cover-9': 'assets/img/blog-covers/cover-9.jpg',
+							    'cover-10': 'assets/img/blog-covers/cover-10.jpg',
+							  };
+
+							  const resolvePostCoverUrl = (key) => {
+							    if (!key || typeof key !== 'string') return '';
+							    return POST_COVER_IMAGES[key] || '';
+							  };
+
+									  // Map of user ID -> username for admin post analytics.
+										  let adminUsersById = {};
 									  const deriveDisplayNameFromIdentifier = (identifier) => {
 									    if (!identifier || typeof identifier !== 'string') return '';
 									    let base = identifier;
@@ -1223,8 +1242,29 @@
 		      item.dataset.body = post.content || '';
 		      item.dataset.status = post.status || '';
 		      item.dataset.created = post.created_at || '';
-		
-		      const header = document.createElement('div');
+
+				      const rawCoverKey = (post.cover_image_key || '').toString().trim();
+				      if (rawCoverKey) {
+				        item.dataset.coverKey = rawCoverKey;
+				      }
+				
+				      if (isModernLayout) {
+				        const coverUrl = resolvePostCoverUrl(rawCoverKey);
+				        if (coverUrl) {
+				          const coverWrapper = document.createElement('div');
+				          coverWrapper.className = 'blog-post-cover-wrapper';
+				          const coverImg = document.createElement('img');
+				          coverImg.className = 'blog-post-cover';
+				          coverImg.src = coverUrl;
+				          coverImg.alt = post.title
+				            ? `Cover for "${post.title}"`
+				            : 'Blog post cover image';
+				          coverWrapper.appendChild(coverImg);
+				          item.appendChild(coverWrapper);
+				        }
+				      }
+
+				      const header = document.createElement('div');
 		      header.className = 'd-flex justify-content-between align-items-start mb-1';
 		
 		      const titleWrapper = document.createElement('div');
@@ -1685,14 +1725,18 @@
 					      showBlogStatus('Only admins and editors can create posts.', 'error');
 					      return;
 					    }
-		    const titleInput = select('#post-title');
-		    const descriptionInput = select('#post-description');
-		    const categoryInput = select('#post-category');
-		    const bodyInput = select('#post-body');
-		    const title = titleInput?.value.trim();
-		    const description = descriptionInput?.value.trim() || '';
-		    const category = categoryInput?.value.trim() || '';
-		    const body = bodyInput?.value.trim();
+				    const titleInput = select('#post-title');
+				    const descriptionInput = select('#post-description');
+				    const categoryInput = select('#post-category');
+				    const bodyInput = select('#post-body');
+				    const coverSelect = select('#post-cover-key');
+				    const title = titleInput?.value.trim();
+				    const description = descriptionInput?.value.trim() || '';
+				    const category = categoryInput?.value.trim() || '';
+				    const coverImageKey = coverSelect && typeof coverSelect.value === 'string'
+				      ? coverSelect.value.trim()
+				      : '';
+				    const body = bodyInput?.value.trim();
 		    if (!title || !body) {
 		      showBlogStatus('Please provide at least a title and body.', 'error');
 		      return;
@@ -1714,7 +1758,7 @@
 		      await apiRequest(path, {
 		        method,
 		        headers: { 'Content-Type': 'application/json' },
-		        body: JSON.stringify({ title, description, category, content: body, status })
+				        body: JSON.stringify({ title, description, category, cover_image_key: coverImageKey, content: body, status })
 		      });
 		      showBlogStatus(successMessage, 'success');
 		      if (event.target && typeof event.target.reset === 'function') {
@@ -1762,7 +1806,7 @@
 			      showBlogStatus('Only admins and editors can create posts.', 'error');
 			      return;
 			    }
-		    const createPostForm = select('#create-post-form');
+				    const createPostForm = select('#create-post-form');
 		    if (!createPostForm) return;
 		    const adminPanel = select('#admin-panel');
 		    const blogApp = select('#blog-app');
@@ -1773,7 +1817,7 @@
 		    const isHidden = createPostForm.classList.contains('d-none');
 		    const btn = select('#btn-toggle-create-post');
 		
-		    if (isHidden) {
+				    if (isHidden) {
 		      // Enter "create" mode explicitly: clear any edit state, reset fields, show form, hide posts.
 		      editingPostId = null;
 		      if (submitBtn) submitBtn.textContent = 'Publish post';
@@ -1781,10 +1825,12 @@
 		      const descriptionInput = select('#post-description');
 		      const categoryInput = select('#post-category');
 		      const bodyInput = select('#post-body');
+				      const coverSelect = select('#post-cover-key');
 		      if (titleInput) titleInput.value = '';
 		      if (descriptionInput) descriptionInput.value = '';
 		      if (categoryInput) categoryInput.value = '';
 		      if (bodyInput) bodyInput.value = '';
+				      if (coverSelect) coverSelect.value = '';
 		
 		      createPostForm.classList.remove('d-none');
 		      if (btn) btn.textContent = 'Hide create form';
@@ -1939,12 +1985,12 @@
 					    // Only admins and editors are allowed to edit or delete posts. The server
 				    // enforces this as well, but we short-circuit here for the UI.
 				    if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'editor')) return;
-		    const item = target.closest('.blog-post-item');
-		    if (!item) return;
-		    const postId = item.dataset.postId;
-		    if (!postId) return;
-		
-		    if (target.classList.contains('blog-delete-post')) {
+				    const item = target.closest('.blog-post-item');
+				    if (!item) return;
+				    const postId = item.dataset.postId;
+				    if (!postId) return;
+					
+				    if (target.classList.contains('blog-delete-post')) {
 		      if (!window.confirm('Are you sure you want to delete this post?')) return;
 		      try {
 		        await apiRequest(`/posts/${postId}`, { method: 'DELETE' });
@@ -1954,28 +2000,31 @@
 		        console.error(err);
 		        showBlogStatus(err.message || 'Could not delete post.', 'error');
 		      }
-		    } else if (target.classList.contains('blog-edit-post')) {
-		      const titleEl = item.querySelector('.blog-post-title');
-		      const contentEl = item.querySelector('.blog-post-content');
-		      const currentTitle = item.dataset.title || (titleEl ? titleEl.textContent || '' : '');
-		      const currentDescription = item.dataset.description || '';
-		      const currentCategory = item.dataset.category || '';
-		      const currentBody =
-		        item.dataset.body || (contentEl ? contentEl.dataset.full || contentEl.textContent || '' : '');
-		
-		      const createPostForm = select('#create-post-form');
-		      const titleInput = select('#post-title');
-		      const descriptionInput = select('#post-description');
-		      const categoryInput = select('#post-category');
-		      const bodyInput = select('#post-body');
-		      if (!createPostForm || !titleInput || !descriptionInput || !categoryInput || !bodyInput) return;
-		
-		      // Put the form into "edit" mode.
-		      editingPostId = postId;
-		      titleInput.value = currentTitle;
-		      descriptionInput.value = currentDescription;
-		      categoryInput.value = currentCategory || '';
-		      bodyInput.value = currentBody;
+				    } else if (target.classList.contains('blog-edit-post')) {
+				      const titleEl = item.querySelector('.blog-post-title');
+				      const contentEl = item.querySelector('.blog-post-content');
+				      const currentTitle = item.dataset.title || (titleEl ? titleEl.textContent || '' : '');
+				      const currentDescription = item.dataset.description || '';
+				      const currentCategory = item.dataset.category || '';
+				      const currentBody =
+				        item.dataset.body || (contentEl ? contentEl.dataset.full || contentEl.textContent || '' : '');
+				      const currentCoverKey = item.dataset.coverKey || '';
+						
+				      const createPostForm = select('#create-post-form');
+				      const titleInput = select('#post-title');
+				      const descriptionInput = select('#post-description');
+				      const categoryInput = select('#post-category');
+				      const bodyInput = select('#post-body');
+				      const coverSelect = select('#post-cover-key');
+				      if (!createPostForm || !titleInput || !descriptionInput || !categoryInput || !bodyInput) return;
+						
+				      // Put the form into "edit" mode.
+				      editingPostId = postId;
+				      titleInput.value = currentTitle;
+				      descriptionInput.value = currentDescription;
+				      categoryInput.value = currentCategory || '';
+				      bodyInput.value = currentBody;
+				      if (coverSelect) coverSelect.value = currentCoverKey || '';
 		
 		      const submitBtn = createPostForm.querySelector('button[type="submit"]');
 		      if (submitBtn) submitBtn.textContent = 'Save changes';
