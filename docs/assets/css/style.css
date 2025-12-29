@@ -1998,6 +1998,8 @@ section {
   font-size: 0.95rem;
   line-height: 1.7;
   color: #e5e7eb;
+  /* Preserve author line breaks in post bodies so they don't appear as one blob. */
+  white-space: pre-line;
 }
 
 .light-theme .blog-post-content {
@@ -2100,6 +2102,8 @@ section {
 	font-size: 0.98rem;
 	line-height: 1.8;
 	color: #e5e7eb;
+	/* In the centered reader view, respect line breaks from the editor. */
+	white-space: pre-line;
 }
 
 .light-theme .blog-post-reader-body {

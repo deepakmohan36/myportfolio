@@ -489,6 +489,89 @@
 								    if (years <= 1) return '1 year ago';
 								    return `${years} years ago`;
 								  };
+										  
+										  // --- Basic Markdown rendering for blog posts ---
+										  // We keep content stored as plain text/Markdown in the backend, but render
+										  // a small, safe subset (headings, lists, paragraphs, inline emphasis) for
+										  // readers in the overlay view.
+										  const escapeHtml = (str) => {
+										    if (!str) return '';
+										    return String(str)
+										      .replace(/&/g, '&amp;')
+										      .replace(/</g, '&lt;')
+										      .replace(/>/g, '&gt;')
+										      .replace(/"/g, '&quot;')
+										      .replace(/'/g, '&#39;');
+										  };
+										  
+										  const applyInlineMarkdownFormatting = (text) => {
+										    if (!text) return '';
+										    let formatted = text;
+										    // Bold: **text** or __text__
+										    formatted = formatted
+										      .replace(/\*\*(.+?)\*\*/g, '<strong>$1<\/strong>')
+										      .replace(/__(.+?)__/g, '<strong>$1<\/strong>');
+										    // Italic: *text* or _text_
+										    formatted = formatted
+										      .replace(/\*(.+?)\*/g, '<em>$1<\/em>')
+										      .replace(/_(.+?)_/g, '<em>$1<\/em>');
+										    // Inline code: `code`
+										    formatted = formatted.replace(/`([^`]+)`/g, '<code>$1<\/code>');
+										    return formatted;
+										  };
+										  
+										  const renderBasicMarkdown = (markdown) => {
+										    if (!markdown) return '';
+										    const escaped = escapeHtml(markdown);
+										    const lines = escaped.split(/\r?\n/);
+										    const htmlLines = [];
+										    let inList = false;
+										  
+										    const closeList = () => {
+										      if (inList) {
+										        htmlLines.push('</ul>');
+										        inList = false;
+										      }
+										    };
+										  
+										    for (let i = 0; i < lines.length; i += 1) {
+										      const rawLine = lines[i];
+										      const line = rawLine.trimEnd();
+										  
+										      if (!line.trim()) {
+										        // Blank line -> paragraph / list separator.
+										        closeList();
+										        continue;
+										      }
+										  
+										      const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
+										      if (headingMatch) {
+										        closeList();
+										        const level = headingMatch[1].length;
+										        const text = applyInlineMarkdownFormatting(headingMatch[2].trim());
+										        htmlLines.push(`<h${level}>${text}<\/h${level}>`);
+										        continue;
+										      }
+										  
+										      const listMatch = line.match(/^[-*]\s+(.*)$/);
+										      if (listMatch) {
+										        if (!inList) {
+										          inList = true;
+										          htmlLines.push('<ul>');
+										        }
+										        const itemText = applyInlineMarkdownFormatting(listMatch[1].trim());
+										        htmlLines.push(`<li>${itemText}<\/li>`);
+										        continue;
+										      }
+										  
+										      closeList();
+										      const paragraphText = applyInlineMarkdownFormatting(line.trim());
+										      htmlLines.push(`<p>${paragraphText}<\/p>`);
+										    }
+										  
+										    closeList();
+										    return htmlLines.join('\n');
+										  };
 								
 								  // Centered reader view overlay for blog posts
 									  let postReaderOverlay = null;
@@ -661,7 +744,10 @@
 													    }
 													  }
 													
-													  postReaderBody.textContent = body;
+										    // Render Markdown (headings, lists, emphasis) for a better reading
+										    // experience in the overlay, while keeping stored content as plain
+										    // text/Markdown.
+										    postReaderBody.innerHTML = renderBasicMarkdown(body);
 													
 													  // Render reactions inside the expanded reader view.
 													  if (postReaderReactions) {
