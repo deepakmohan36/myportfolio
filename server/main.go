@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	// Initialize the existing SQLite database for posts and reactions.
+	// Initialize datastore (currently a no-op; posts and reactions are Firestore-backed).
 	db.InitDB()
 
 	// Initialize Firestore for user authentication and user management.

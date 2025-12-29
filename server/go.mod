@@ -6,9 +6,9 @@ require (
 	cloud.google.com/go/firestore v1.20.0
 	github.com/gin-gonic/gin v1.11.0
 	github.com/golang-jwt/jwt/v5 v5.3.0
-	github.com/mattn/go-sqlite3 v1.14.32
 	golang.org/x/crypto v0.46.0
 	google.golang.org/api v0.258.0
+	google.golang.org/grpc v1.77.0
 )
 
 require (
@@ -62,6 +62,5 @@ require (
 	google.golang.org/genproto v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251022142026-3a174f9686a8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251213004720-97cd9d5aeac2 // indirect
-	google.golang.org/grpc v1.77.0 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 )

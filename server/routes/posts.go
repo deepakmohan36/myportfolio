@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -50,7 +51,11 @@ func reactToPost(c *gin.Context) {
 
 	// Ensure the post exists first so we can return a 404 if needed.
 	if _, err := models.GetPostByID(postID); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "Post not found"})
+		if errors.Is(err, models.ErrPostNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"message": "Post not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not verify post"})
+		}
 		return
 	}
 
@@ -66,8 +71,12 @@ func reactToPost(c *gin.Context) {
 
 	result, err := models.SetPostReaction(userID, postID, body.Reaction)
 	if err != nil {
-		if err == models.ErrInvalidReaction {
+		if errors.Is(err, models.ErrInvalidReaction) {
 			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid reaction. Use 'like' or 'dislike'."})
+			return
+		}
+		if errors.Is(err, models.ErrPostNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"message": "Post not found"})
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Could not update reaction. Try again later."})
@@ -91,7 +100,11 @@ func getPost(context *gin.Context) {
 
 	post, err := models.GetPostByID(postID)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve post"})
+		if errors.Is(err, models.ErrPostNotFound) {
+			context.JSON(http.StatusNotFound, gin.H{"message": "Post not found"})
+		} else {
+			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve post"})
+		}
 		return
 	}
 
@@ -137,7 +150,11 @@ func updatePost(context *gin.Context) {
 		userID := context.GetInt64("userId")
 		post, err := models.GetPostByID(postID)
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch post"})
+			if errors.Is(err, models.ErrPostNotFound) {
+				context.JSON(http.StatusNotFound, gin.H{"message": "Post not found"})
+			} else {
+				context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch post"})
+			}
 			return
 		}
 
@@ -184,7 +201,11 @@ func deletePost(context *gin.Context) {
 		userID := context.GetInt64("userId")
 		post, err := models.GetPostByID(postID)
 		if err != nil {
-			context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch post"})
+			if errors.Is(err, models.ErrPostNotFound) {
+				context.JSON(http.StatusNotFound, gin.H{"message": "Post not found"})
+			} else {
+				context.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch post"})
+			}
 			return
 		}
 
