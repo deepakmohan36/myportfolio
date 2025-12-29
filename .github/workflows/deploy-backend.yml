@@ -54,5 +54,5 @@ jobs:
             --region="$REGION" \
             --project="$PROJECT_ID" \
             --allow-unauthenticated \
-            --set-env-vars=JWT_SECRET=${{ secrets.JWT_SECRET }},GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            --set-env-vars=GOOGLE_CLOUD_PROJECT="$PROJECT_ID",JWT_SECRET=${{ secrets.JWT_SECRET }},GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
 
