@@ -23,6 +23,7 @@ type Post struct {
 	Title         string    `json:"title" binding:"required"`
 	Description   string    `json:"description"`
 	Category      string    `json:"category"`
+	CoverImageKey string    `json:"cover_image_key"`
 	Content       string    `json:"content" binding:"required"`
 	Status        string    `json:"status"`
 	CreatedAt     time.Time `json:"created_at"`
@@ -38,6 +39,7 @@ type firestorePostDoc struct {
 	Title         string    `firestore:"title"`
 	Description   string    `firestore:"description"`
 	Category      string    `firestore:"category"`
+	CoverImageKey string    `firestore:"cover_image_key"`
 	Content       string    `firestore:"content"`
 	Status        string    `firestore:"status"`
 	CreatedAt     time.Time `firestore:"created_at"`
@@ -105,6 +107,7 @@ func (p *Post) Save() error {
 		Title:         p.Title,
 		Description:   p.Description,
 		Category:      p.Category,
+		CoverImageKey: p.CoverImageKey,
 		Content:       p.Content,
 		Status:        p.Status,
 		CreatedAt:     p.CreatedAt,
@@ -153,6 +156,7 @@ func GetAllPosts() ([]Post, error) {
 			Title:         data.Title,
 			Description:   data.Description,
 			Category:      data.Category,
+				CoverImageKey: data.CoverImageKey,
 			Content:       data.Content,
 			Status:        data.Status,
 			CreatedAt:     data.CreatedAt,
@@ -188,6 +192,7 @@ func GetPostByID(id int64) (*Post, error) {
 		Title:         data.Title,
 		Description:   data.Description,
 		Category:      data.Category,
+		CoverImageKey: data.CoverImageKey,
 		Content:       data.Content,
 		Status:        data.Status,
 		CreatedAt:     data.CreatedAt,
@@ -219,6 +224,7 @@ func (p Post) Update() error {
 		{Path: "title", Value: p.Title},
 		{Path: "description", Value: p.Description},
 		{Path: "category", Value: p.Category},
+		{Path: "cover_image_key", Value: p.CoverImageKey},
 		{Path: "status", Value: p.Status},
 		{Path: "content", Value: p.Content},
 		{Path: "updated_at", Value: p.UpdatedAt},
