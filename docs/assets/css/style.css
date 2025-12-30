@@ -290,6 +290,11 @@ h6 {
   }
 }
 
+/* Special, welcoming font treatment for the blog welcome message */
+#blog-current-user {
+	  font-family: "Allura", "Satisfy", "Great Vibes", "Poppins", cursive, sans-serif;
+}
+
 @media (max-width: 768px) {
   #hero h1 {
     font-size: 28px;
@@ -1379,7 +1384,55 @@ section {
 /*--------------------------------------------------------------
 # Theme toggle & scroll progress
 --------------------------------------------------------------*/
-.theme-toggle {
+.site-brand {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  height: 42px;
+  padding: 0 1.1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7f5;
+  font-family: "Merriweather", "Georgia", serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.82);
+  backdrop-filter: blur(18px);
+  transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease,
+    border-color 0.25s ease, color 0.25s ease;
+}
+
+.site-brand:hover,
+.site-brand:focus-visible {
+  background: rgba(15, 23, 42, 0.98);
+  border-color: rgba(148, 163, 184, 0.95);
+  color: #f9fafb;
+  transform: translateY(-1px);
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.9);
+}
+
+.light-theme .site-brand {
+  background: rgba(255, 255, 255, 0.94);
+  color: #020617;
+  border-color: rgba(148, 163, 184, 0.6);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.4);
+}
+
+.light-theme .site-brand:hover,
+.light-theme .site-brand:focus-visible {
+  background: #f1f5f9;
+  color: #020617;
+}
+
+.theme-toggle-floating {
   position: fixed;
   top: 18px;
   right: 18px;
@@ -1451,6 +1504,64 @@ section {
   text-transform: uppercase;
 }
 
+/* Make the avatar itself act as the dropdown trigger without extra padding
+   or a Bootstrap caret arrow. */
+.auth-avatar-toggle {
+  padding: 0;
+}
+
+.auth-avatar-toggle::after {
+  display: none;
+}
+
+/* Auth avatar dropdown menu styling */
+.auth-bar .dropdown-menu {
+  min-width: 220px;
+  padding: 0.5rem 0.75rem;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background:
+    radial-gradient(circle at top left, rgba(20, 192, 221, 0.14), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(159, 122, 234, 0.18), rgba(15, 23, 42, 0.96));
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 35px rgba(15, 23, 42, 0.85);
+  margin-top: 0.65rem;
+}
+
+.auth-bar .dropdown-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e5e7f5;
+  opacity: 0.9;
+}
+
+.auth-bar .dropdown-menu li + li {
+  margin-top: 0.25rem;
+}
+
+.auth-bar .dropdown-item {
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.auth-bar .dropdown-item:hover,
+.auth-bar .dropdown-item:focus {
+  background: linear-gradient(135deg, rgba(20, 192, 221, 0.2), rgba(159, 122, 234, 0.25));
+  color: #f9fafb;
+}
+
+.auth-bar .dropdown-menu button {
+  width: 100%;
+  text-align: left;
+}
+
 #auth-login-btn {
   border-radius: 999px;
   border: 0;
@@ -1494,18 +1605,18 @@ section {
   color: #020617;
 }
 
-.theme-toggle:focus {
+.theme-toggle-floating:focus {
   outline: none;
   box-shadow: 0 0 0 2px rgba(20, 157, 221, 0.9);
 }
 
-.theme-toggle:hover {
+.theme-toggle-floating:hover {
   transform: translateY(-1px);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.55);
   border-color: rgba(255, 255, 255, 0.4);
 }
 
-.theme-toggle .bi {
+.theme-toggle-floating .bi {
   font-size: 1.1rem;
 }
 
@@ -1513,19 +1624,19 @@ section {
   display: none;
 }
 
-.dark-theme .theme-toggle .icon-moon,
-.light-theme .theme-toggle .icon-sun {
+.dark-theme .theme-toggle-floating .icon-moon,
+.light-theme .theme-toggle-floating .icon-sun {
   display: inline-flex;
 }
 
-.light-theme .theme-toggle {
+.light-theme .theme-toggle-floating {
   background: rgba(255, 255, 255, 0.9);
   color: #0b1020;
   box-shadow: 0 10px 25px rgba(15, 23, 42, 0.25);
   border-color: rgba(15, 23, 42, 0.12);
 }
 
-.light-theme .theme-toggle:hover {
+.light-theme .theme-toggle-floating:hover {
   background: #f0f4ff;
 }
 
@@ -1699,8 +1810,11 @@ section {
 }
 
 #blog-current-user {
-	  font-size: 0.85rem;
-	}
+					  font-size: 2.6rem;  /* ~1.5x the earlier 1.7rem size */
+					  line-height: 1.5;   /* comfortable at this size */
+					  letter-spacing: 0.02em; /* subtle horizontal spacing between letters */
+					  word-spacing: 0.03em;   /* subtle horizontal spacing between words  */
+					}
 
 .dark-theme #blog-current-user {
 	  color: #f9fafb !important;
