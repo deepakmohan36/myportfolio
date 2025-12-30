@@ -1529,20 +1529,22 @@ section {
 }
 
 .auth-bar .dropdown-header {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #e5e7f5;
-  opacity: 0.9;
-}
+			  font-size: 0.85rem;
+		  font-weight: 700;
+		  letter-spacing: 0.04em;
+		  text-transform: none;
+		  color: #e5e7f5;
+		  opacity: 0.95;
+		  white-space: normal;
+		  padding: 0.1rem 0.75rem 0.35rem;
+		}
 
 .auth-bar .dropdown-menu li + li {
   margin-top: 0.25rem;
 }
 
 .auth-bar .dropdown-item {
-  font-size: 0.8rem;
+		  font-size: 0.8rem;
   color: #e2e8f0;
   border-radius: 999px;
   padding: 0.4rem 0.75rem;
@@ -1555,6 +1557,28 @@ section {
 .auth-bar .dropdown-item:focus {
   background: linear-gradient(135deg, rgba(20, 192, 221, 0.2), rgba(159, 122, 234, 0.25));
   color: #f9fafb;
+}
+
+/* Make the logout option feel less like a primary action */
+.auth-bar #auth-logout-btn {
+		  font-weight: 500;
+		  opacity: 0.9;
+		  border-radius: 0;
+		  border: 0;
+			  padding: 0.4rem 0.75rem;
+		}
+
+.auth-bar #auth-logout-btn:hover,
+.auth-bar #auth-logout-btn:focus {
+		  background: transparent;
+		  color: #e5e7f0;
+		  box-shadow: none;
+		}
+
+.auth-bar #auth-logout-btn:hover,
+.auth-bar #auth-logout-btn:focus {
+	  background: transparent;
+	  color: #e5e7f0;
 }
 
 .auth-bar .dropdown-menu button {
@@ -1791,6 +1815,70 @@ section {
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* Blog search box styling to match dark/light theme */
+.blog-search-group {
+			  max-width: 520px;
+	  border-radius: 999px;
+	  overflow: hidden;
+	  border: 1px solid transparent;
+}
+
+.blog-search-group .input-group-text,
+.blog-search-input {
+	  border: 0;
+}
+
+.dark-theme .blog-search-group {
+	  background:
+	    radial-gradient(circle at top left, rgba(20, 192, 221, 0.16), transparent 55%),
+	    radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.22), rgba(15, 23, 42, 0.96));
+	  border-color: rgba(148, 163, 184, 0.7);
+	  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.85);
+}
+
+.dark-theme .blog-search-group .input-group-text {
+	  background: transparent;
+	  color: #9ca3af;
+}
+
+.dark-theme .blog-search-input {
+	  background: transparent;
+	  color: #e5e7eb;
+}
+
+.dark-theme .blog-search-input::placeholder {
+	  color: #9ca3af;
+	  opacity: 0.9;
+		  font-size: 0.78rem;
+}
+
+.light-theme .blog-search-group {
+	  background: rgba(255, 255, 255, 0.96);
+	  border-color: rgba(15, 23, 42, 0.08);
+	  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.light-theme .blog-search-group .input-group-text {
+	  background: transparent;
+	  color: #6b7280;
+}
+
+.light-theme .blog-search-input {
+	  background: transparent;
+	  color: #111827;
+}
+
+.light-theme .blog-search-input::placeholder {
+	  color: #9ca3af;
+	  opacity: 1;
+		  font-size: 0.78rem;
+}
+
+/* Slightly narrower search in the top auth bar */
+.auth-bar .blog-search-group {
+			  max-width: 420px;
 }
 
 .blog-app {

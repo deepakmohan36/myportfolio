@@ -264,24 +264,35 @@
 	   */
 	  const THEME_STORAGE_KEY = 'dm-portfolio-theme';
 
-	  const applyTheme = (theme) => {
-	    const body = document.body;
-	    if (!body) return;
-
-	    body.classList.remove('dark-theme', 'light-theme');
-	    if (theme === 'light') {
-	      body.classList.add('light-theme');
-	    } else {
-	      body.classList.add('dark-theme');
-	    }
-
-	    const toggles = select('.theme-toggle', true);
-	    if (toggles) {
-	      toggles.forEach(btn => {
-	        btn.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
-	      });
-	    }
-	  }
+		  const applyTheme = (theme) => {
+		    const body = document.body;
+		    if (!body) return;
+		
+		    body.classList.remove('dark-theme', 'light-theme');
+		    if (theme === 'light') {
+		      body.classList.add('light-theme');
+		    } else {
+		      body.classList.add('dark-theme');
+		    }
+		
+		    const isDarkTheme = theme === 'dark';
+		    const targetThemeLabel = isDarkTheme ? 'Light theme' : 'Dark theme';
+		
+		    const toggles = select('.theme-toggle', true);
+		    if (toggles) {
+		      toggles.forEach(btn => {
+		        btn.setAttribute('aria-pressed', isDarkTheme ? 'true' : 'false');
+		        btn.setAttribute(
+		          'aria-label',
+		          isDarkTheme ? 'Switch to light theme' : 'Switch to dark theme',
+		        );
+		        // For dropdown theme toggles (text buttons), update the visible label
+		        if (btn.classList.contains('dropdown-item')) {
+		          btn.textContent = targetThemeLabel;
+		        }
+		      });
+		    }
+		  }
 
 	  const getPreferredTheme = () => {
 	    try {
@@ -2360,10 +2371,11 @@
 									    const toggleBtn = select('#blog-layout-toggle');
 									    if (!toggleBtn || !(toggleBtn instanceof HTMLElement)) return;
 									    const isModern = currentPostsLayout === 'modern';
-									    toggleBtn.textContent = isModern ? 'Modern' : 'Cards';
+									    // Show the *other* layout as the label (what clicking will switch to)
+									    toggleBtn.textContent = isModern ? 'Card layout' : 'Modern layout';
 									    toggleBtn.setAttribute(
 									      'aria-label',
-									      isModern ? 'Switch to cards view' : 'Switch to modern view',
+									      isModern ? 'Switch to card layout' : 'Switch to modern layout',
 									    );
 									  };
 									  
