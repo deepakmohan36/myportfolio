@@ -7,14 +7,15 @@
   <meta content="" name="description">
   <meta content="" name="keywords">
 
-  <!-- Favicons -->
-  <link href="assets/img/favicon.png" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Raleway:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+	  <!-- Favicons -->
+	  <link href="assets/img/favicon.png" rel="icon">
+	  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+	
+			  <!-- Google Fonts -->
+			  <link rel="preconnect" href="https://fonts.googleapis.com">
+			  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+			  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Raleway:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&family=Allura&family=Satisfy&family=Great+Vibes&display=swap" rel="stylesheet">
+			  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;600;700&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -25,50 +26,62 @@
   <link href="assets/css/style.css" rel="stylesheet">
 </head>
 
-<body class="dark-theme">
-  <div id="scroll-progress"></div>
-
-	  <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme">
-	    <span class="theme-toggle-icon icon-moon"><i class="bi bi-moon"></i></span>
-	    <span class="theme-toggle-icon icon-sun"><i class="bi bi-sun"></i></span>
-	  </button>
-
-		  <div id="auth-bar" class="auth-bar d-flex align-items-center gap-2">
-		    <div id="auth-avatar" class="auth-avatar d-none">
-		      <span id="auth-avatar-initial" class="auth-avatar-initial d-none"></span>
-		      <img id="auth-avatar-img" alt="User avatar" class="d-none" />
+		  <body class="dark-theme">
+		    <div id="scroll-progress"></div>
+		
+		    <a href="index.html" id="site-brand" class="site-brand">deepakmohan.in</a>
+		
+			  <div id="auth-bar" class="auth-bar d-flex align-items-center gap-2">
+		    <div class="dropdown">
+		      <button
+		        id="auth-avatar-toggle"
+		        type="button"
+		        class="btn bg-transparent border-0 dropdown-toggle d-none auth-avatar-toggle"
+		        data-bs-toggle="dropdown"
+		        aria-expanded="false"
+		        aria-label="Account menu"
+		      >
+		        <div id="auth-avatar" class="auth-avatar d-none">
+		          <span id="auth-avatar-initial" class="auth-avatar-initial d-none"></span>
+		          <img id="auth-avatar-img" alt="User avatar" class="d-none" />
+		        </div>
+		      </button>
+		      <ul class="dropdown-menu dropdown-menu-end">
+		        <li>
+		          <h6 id="auth-user" class="dropdown-header d-none"></h6>
+		        </li>
+		        <li>
+		          <button class="dropdown-item theme-toggle" type="button">
+		            Toggle dark / light
+		          </button>
+		        </li>
+			        <li>
+			          <button id="btn-open-admin-page" type="button" class="dropdown-item d-none">
+			            <i class="bi bi-speedometer2 me-1"></i>
+			            <span>Admin panel</span>
+			          </button>
+			        </li>
+			        <li>
+			          <button id="auth-logout-btn" type="button" class="dropdown-item d-none">
+			            Log out
+			          </button>
+			        </li>
+		      </ul>
 		    </div>
-		    <span id="auth-user" class="auth-user d-none small text-light"></span>
+
 			    <button id="auth-go-blog-btn" type="button" class="btn btn-sm btn-outline-light d-none">Go to blog</button>
 			    <button id="auth-login-btn" type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#auth-modal">See what I write</button>
-		    <button id="auth-logout-btn" type="button" class="btn btn-sm btn-outline-light d-none">Logout</button>
 		  </div>
 
   <!-- Main Blog Content -->
   <main id="main" class="blog-main">
-    <section id="blog" class="blog section-bg">
-      <div class="container">
-        <div class="section-title mb-4">
-          <h2>Blog</h2>
-        </div>
-
-		        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-		          <div>
-		            <h3 class="h5 mb-1">Latest posts</h3>
-		            <p id="blog-current-user" class="small text-muted mb-0"></p>
-		          </div>
-		          <div class="d-flex gap-2">
-		            <a href="index.html" class="btn btn-outline-secondary btn-sm">
-		              <i class="bi bi-arrow-left"></i>
-		              <span class="ms-1">Back to homepage</span>
-		            </a>
-		            <button id="btn-open-admin-page" type="button" class="btn btn-outline-primary btn-sm d-none">
-		              <i class="bi bi-speedometer2"></i>
-		              <span class="ms-1">Admin panel</span>
-		            </button>
-		          </div>
+	    <section id="blog" class="blog section-bg">
+		      <div class="container">
+		        <!-- Authenticated welcome message above the posts list -->
+		        <div class="mb-5">
+		          <p id="blog-current-user" class="h4 fw-bold mb-0"></p>
 		        </div>
-
+		
 		        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
 		          <div class="d-flex align-items-center gap-2">
 		            <select id="blog-category-filter" class="form-select form-select-sm" style="max-width: 220px;">

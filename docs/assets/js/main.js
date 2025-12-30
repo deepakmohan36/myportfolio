@@ -1106,6 +1106,10 @@
 				      path.endsWith('admin.html') ||
 				      path.endsWith('/admin') ||
 				      path.endsWith('/admin/');
+				    const isBlogPage =
+				      path.endsWith('blog.html') ||
+				      path.endsWith('/blog') ||
+				      path.endsWith('/blog/');
 			    const blogSection = select('#blog');
 			    const appSection = select('#blog-app');
 			    const userLabel = select('#blog-current-user');
@@ -1113,6 +1117,7 @@
 		    const headerAvatar = select('#auth-avatar');
 		    const headerAvatarImg = select('#auth-avatar-img');
 		    const headerAvatarInitial = select('#auth-avatar-initial');
+		    const headerAvatarToggle = select('#auth-avatar-toggle');
 			    const headerLoginBtn = select('#auth-login-btn');
 			    const headerSignupBtn = select('#auth-signup-btn');
 			    const headerLogoutBtn = select('#auth-logout-btn');
@@ -1123,7 +1128,7 @@
 				    const createPostToggleBtn = select('#btn-toggle-create-post');
 				    const adminPanelToggleBtn = select('#btn-toggle-admin-panel');
 				
-					    if (isAuthed) {
+				    if (isAuthed) {
 			      // Keep the homepage clean: never show the Blog section on the homepage,
 			      // even when a user is logged in. The dedicated blog.html page will
 			      // continue to show the blog for authenticated users.
@@ -1133,9 +1138,25 @@
 				      if (!isHomePage && appSection) {
 				        appSection.classList.remove('d-none');
 				      }
-					      if (userLabel) {
-					        userLabel.textContent = '';
-					      }
+			      if (userLabel) {
+			        userLabel.textContent = '';
+			        if (isBlogPage && currentUser) {
+			          const before = 'Good to have you here, ';
+			          const sentenceBreak = '. ';
+			          const secondLine = "My writings are not conclusions. They’re conversations waiting to happen.";
+			          const usernameSpan = document.createElement('span');
+			          usernameSpan.className = 'fw-bold text-warning';
+			          usernameSpan.textContent = currentUser.username || '';
+			          const br = document.createElement('br');
+			          userLabel.append(
+			            document.createTextNode(before),
+			            usernameSpan,
+			            document.createTextNode(sentenceBreak),
+			            br,
+			            document.createTextNode(secondLine)
+			          );
+			        }
+			      }
 				      if (headerUser && currentUser) {
 				        headerUser.textContent = currentUser.username;
 				        headerUser.classList.remove('d-none');
@@ -1158,6 +1179,7 @@
 		          headerAvatarInitial.classList.remove('d-none');
 		        }
 		      }
+		      if (headerAvatarToggle) headerAvatarToggle.classList.remove('d-none');
 					      if (headerLoginBtn) headerLoginBtn.classList.add('d-none');
 					      if (headerSignupBtn) headerSignupBtn.classList.add('d-none');
 					      if (headerLogoutBtn) headerLogoutBtn.classList.remove('d-none');
@@ -1170,17 +1192,27 @@
 				          headerGoBlogBtn.classList.add('d-none');
 				        }
 				      }
-					      if (adminPageBtn) {
-					        if (currentUser && (isAdmin || isEditor)) {
-					          adminPageBtn.classList.remove('d-none');
-					          const label = isAdmin ? 'Admin panel' : "Editor's portal";
-					          const labelSpan = adminPageBtn.querySelector('span');
-					          if (labelSpan) labelSpan.textContent = label;
-					          adminPageBtn.setAttribute('aria-label', label);
-					        } else {
-					          adminPageBtn.classList.add('d-none');
-					        }
-					      }
+				      if (adminPageBtn) {
+				        if (!currentUser) {
+				          adminPageBtn.classList.add('d-none');
+				        } else if (isAdminPage) {
+				          // When already on the admin/editor page, offer a way back to the blog.
+				          adminPageBtn.classList.remove('d-none');
+				          const label = 'Blog';
+				          const labelSpan = adminPageBtn.querySelector('span');
+				          if (labelSpan) labelSpan.textContent = label;
+				          adminPageBtn.setAttribute('aria-label', label);
+				        } else if (isAdmin || isEditor) {
+				          // On non-admin pages, show entry to the admin/editor portal.
+				          adminPageBtn.classList.remove('d-none');
+				          const label = isAdmin ? 'Admin panel' : "Editor's portal";
+				          const labelSpan = adminPageBtn.querySelector('span');
+				          if (labelSpan) labelSpan.textContent = label;
+				          adminPageBtn.setAttribute('aria-label', label);
+				        } else {
+				          adminPageBtn.classList.add('d-none');
+				        }
+				      }
 					      if (createPostToggleBtn) {
 					        if (currentUser && (isAdmin || isEditor)) {
 					          createPostToggleBtn.classList.remove('d-none');
@@ -1231,17 +1263,18 @@
 			      if (userLabel) {
 			        userLabel.textContent = '';
 			      }
-				      if (headerUser) {
+		      if (headerUser) {
 				        headerUser.textContent = '';
 				        headerUser.classList.add('d-none');
 				      }
-		      if (headerAvatar && headerAvatarImg && headerAvatarInitial) {
+	      if (headerAvatar && headerAvatarImg && headerAvatarInitial) {
 		        headerAvatar.classList.add('d-none');
 		        headerAvatarImg.src = '';
 		        headerAvatarImg.classList.add('d-none');
 		        headerAvatarInitial.textContent = '';
-		        headerAvatarInitial.classList.add('d-none');
-		      }
+	        headerAvatarInitial.classList.add('d-none');
+	      }
+	      if (headerAvatarToggle) headerAvatarToggle.classList.add('d-none');
 				      if (headerLoginBtn) headerLoginBtn.classList.remove('d-none');
 				      if (headerSignupBtn) headerSignupBtn.classList.remove('d-none');
 				      if (headerLogoutBtn) headerLogoutBtn.classList.add('d-none');
@@ -2396,8 +2429,8 @@
 			    const createPostToggleBtn = select('#btn-toggle-create-post');
 			    const adminPanelToggleBtn = select('#btn-toggle-admin-panel');
 			    const analysisPanelToggleBtn = select('#btn-toggle-analysis-panel');
-		    const postsPagination = select('#posts-pagination');
-		    const adminPageBtn = select('#btn-open-admin-page');
+			    const postsPagination = select('#posts-pagination');
+			    const adminPageBtn = select('#btn-open-admin-page');
 
 		    if (signupForm) {
 		      signupForm.addEventListener('submit', handleSignupSubmit);
@@ -2420,8 +2453,17 @@
 			      });
 			    }
 			    if (adminPageBtn) {
+			      const path = window.location.pathname || '';
+			      const isAdminPage =
+			        path.endsWith('admin.html') ||
+			        path.endsWith('/admin') ||
+			        path.endsWith('/admin/');
 			      adminPageBtn.addEventListener('click', () => {
-			        window.location.href = 'admin.html';
+			        if (isAdminPage) {
+			          window.location.href = 'blog.html';
+			        } else {
+			          window.location.href = 'admin.html';
+			        }
 			      });
 			    }
 			    if (createPostToggleBtn) {

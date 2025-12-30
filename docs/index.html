@@ -13,8 +13,9 @@
   <link href="assets/img/logod.png" rel="icon">
   <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+	  <!-- Google Fonts -->
+	  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+	  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;600;700&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
@@ -29,31 +30,59 @@
 
 </head>
 
-<body class="dark-theme">
-
-	  <div id="scroll-progress"></div>
+		  <body class="dark-theme">
+		
+			  <div id="scroll-progress"></div>
+			
+				  <button class="theme-toggle theme-toggle-floating" type="button" aria-label="Toggle dark and light theme">
+			    <span class="theme-toggle-icon icon-moon"><i class="bi bi-moon"></i></span>
+			    <span class="theme-toggle-icon icon-sun"><i class="bi bi-sun"></i></span>
+			  </button>
 	
-		  <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme">
-		    <span class="theme-toggle-icon icon-moon"><i class="bi bi-moon"></i></span>
-		    <span class="theme-toggle-icon icon-sun"><i class="bi bi-sun"></i></span>
-		  </button>
-
-			  <div id="auth-bar" class="auth-bar d-flex align-items-center gap-2">
-			    <div id="auth-avatar" class="auth-avatar d-none">
-			      <span id="auth-avatar-initial" class="auth-avatar-initial d-none"></span>
-			      <img id="auth-avatar-img" alt="User avatar" class="d-none" />
-			    </div>
-			    <span id="auth-user" class="auth-user d-none small text-light"></span>
-			    <button id="auth-go-blog-btn" type="button" class="btn btn-sm btn-outline-light d-none">
-			      Go to blog
-			    </button>
-				    <button id="auth-login-btn" type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#auth-modal">
-				      See what I write
+				  <div id="auth-bar" class="auth-bar d-flex align-items-center gap-2">
+				    <div class="dropdown">
+				      <button
+				        id="auth-avatar-toggle"
+				        type="button"
+				        class="btn bg-transparent border-0 dropdown-toggle d-none auth-avatar-toggle"
+				        data-bs-toggle="dropdown"
+				        aria-expanded="false"
+				        aria-label="Account menu"
+				      >
+				        <div id="auth-avatar" class="auth-avatar d-none">
+				          <span id="auth-avatar-initial" class="auth-avatar-initial d-none"></span>
+				          <img id="auth-avatar-img" alt="User avatar" class="d-none" />
+				        </div>
+				      </button>
+				      <ul class="dropdown-menu dropdown-menu-end">
+				        <li>
+				          <h6 id="auth-user" class="dropdown-header d-none"></h6>
+				        </li>
+				        <li>
+				          <button class="dropdown-item theme-toggle" type="button">
+				            Toggle dark / light
+				          </button>
+				        </li>
+				        <li>
+				          <button id="btn-open-admin-page" type="button" class="dropdown-item d-none">
+				            <i class="bi bi-speedometer2 me-1"></i>
+				            <span>Admin panel</span>
+				          </button>
+				        </li>
+				        <li>
+				          <button id="auth-logout-btn" type="button" class="dropdown-item d-none">
+				            Log out
+				          </button>
+				        </li>
+				      </ul>
+				    </div>
+				    <button id="auth-go-blog-btn" type="button" class="btn btn-sm btn-outline-light d-none">
+				      Go to blog
 				    </button>
-			    <button id="auth-logout-btn" type="button" class="btn btn-sm btn-outline-light d-none">
-			      Logout
-			    </button>
-			  </div>
+					    <button id="auth-login-btn" type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#auth-modal">
+					      See what I write
+					    </button>
+				  </div>
 
 	  <!-- ======= Mobile nav toggle button ======= -->
 	  <i class="bi bi-list mobile-nav-toggle d-xl-none"></i>

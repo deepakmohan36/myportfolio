@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Raleway:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
@@ -19,10 +20,61 @@
 <body class="dark-theme">
   <div id="scroll-progress"></div>
 
-  <button class="theme-toggle" type="button" aria-label="Toggle dark and light theme">
+  <a href="index.html" id="site-brand" class="site-brand">deepakmohan.in</a>
+
+  <button class="theme-toggle theme-toggle-floating" type="button" aria-label="Toggle dark and light theme">
     <span class="theme-toggle-icon icon-moon"><i class="bi bi-moon"></i></span>
     <span class="theme-toggle-icon icon-sun"><i class="bi bi-sun"></i></span>
   </button>
+
+  <div id="auth-bar" class="auth-bar d-flex align-items-center gap-2">
+    <div class="dropdown">
+      <button
+        id="auth-avatar-toggle"
+        type="button"
+        class="btn bg-transparent border-0 dropdown-toggle d-none auth-avatar-toggle"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        aria-label="Account menu"
+      >
+        <div id="auth-avatar" class="auth-avatar d-none">
+          <span id="auth-avatar-initial" class="auth-avatar-initial d-none"></span>
+          <img id="auth-avatar-img" alt="User avatar" class="d-none" />
+        </div>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li>
+          <h6 id="auth-user" class="dropdown-header d-none"></h6>
+        </li>
+        <li>
+          <button class="dropdown-item theme-toggle" type="button">
+            Toggle dark / light
+          </button>
+        </li>
+        <li>
+          <button id="btn-open-admin-page" type="button" class="dropdown-item d-none">
+            <i class="bi bi-speedometer2 me-1"></i>
+            <span>Admin panel</span>
+          </button>
+        </li>
+        <li>
+          <button id="auth-logout-btn" type="button" class="dropdown-item d-none">
+            Log out
+          </button>
+        </li>
+      </ul>
+    </div>
+    <button id="auth-go-blog-btn" type="button" class="btn btn-sm btn-outline-light d-none">Go to blog</button>
+    <button
+      id="auth-login-btn"
+      type="button"
+      class="btn btn-sm btn-outline-light"
+      data-bs-toggle="modal"
+      data-bs-target="#auth-modal"
+    >
+      See what I write
+    </button>
+  </div>
 
   <main id="main" class="blog-main">
     <section id="blog" class="blog section-bg">
