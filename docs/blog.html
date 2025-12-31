@@ -22,14 +22,18 @@
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
 
-  <!-- Template Main CSS File -->
-  <link href="assets/css/style.css" rel="stylesheet">
-</head>
+	  <!-- Template Main CSS File -->
+	  <link href="assets/css/style.css" rel="stylesheet">
+	</head>
 
-			  <body class="dark-theme">
-			    <div id="scroll-progress"></div>
-			
-			    <a href="index.html" id="site-brand" class="site-brand">deepakmohan.in</a>
+				  <body class="dark-theme blog-page">
+				    <div id="scroll-progress"></div>
+				
+				    <a href="index.html" id="site-brand" class="site-brand">
+				      <span class="site-brand-root">deepakmohan.in</span>
+				      <span class="site-brand-separator">/</span>
+				      <span class="site-brand-section">Blog</span>
+				    </a>
 			
 				  <div id="auth-bar" class="auth-bar d-flex align-items-center gap-2">
 				    <div class="flex-grow-1 d-flex justify-content-end">
@@ -85,18 +89,18 @@
 				      </ul>
 				    </div>
 			
-				    <button id="auth-go-blog-btn" type="button" class="btn btn-sm btn-outline-light d-none">Go to blog</button>
-				    <button id="auth-login-btn" type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#auth-modal">See what I write</button>
+					    <button id="auth-go-blog-btn" type="button" class="btn btn-sm btn-outline-light d-none">Go to blog</button>
+					    <button id="auth-login-btn" type="button" class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#auth-modal">Sign in to read my blog</button>
 			  </div>
 
   <!-- Main Blog Content -->
   <main id="main" class="blog-main">
 	    <section id="blog" class="blog section-bg">
 		      <div class="container">
-		        <!-- Authenticated welcome message above the posts list -->
-		        <div class="mb-5">
-		          <p id="blog-current-user" class="h4 fw-bold mb-0"></p>
-		        </div>
+	        <!-- Authenticated welcome message above the posts list -->
+	        <div class="mb-5">
+	          <p id="blog-current-user" class="h4 fw-bold mb-0"></p>
+	        </div>
 		
 		        <div id="blog-status" class="alert d-none mt-1 mb-4" role="alert"></div>
 	
@@ -113,13 +117,18 @@
 	    <div class="modal-dialog modal-dialog-centered auth-modal-dialog">
 	      <div class="modal-content auth-modal-content">
 	        <div class="modal-header">
-	          <h5 class="modal-title" id="auth-modal-label">Sign in to access Deepak's Blog</h5>
+	          <h5 class="modal-title" id="auth-modal-label">Sign in to read Deepak's blog</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
 	          <div id="auth-status" class="alert d-none mb-3" role="alert"></div>
 	          <div id="blog-auth">
 	            <h3 class="h5 mb-1">Sign in</h3>
+	            <p class="text-muted small mb-3">
+	              I keep this space behind a sign-in so I can write more honestly, understand which posts resonate,
+	              and let you react to what you read. Signing in is free and only takes a moment.
+	              <span class="d-block mt-1">See what I write, in a more private space.</span>
+	            </p>
 
 	            <!-- Google sign-in button (Google Identity Services) -->
 	            <div class="mb-3">
