@@ -1140,32 +1140,29 @@
 				    const adminPanelToggleBtn = select('#btn-toggle-admin-panel');
 				
 				    if (isAuthed) {
-			      // Keep the homepage clean: never show the Blog section on the homepage,
-			      // even when a user is logged in. The dedicated blog.html page will
-			      // continue to show the blog for authenticated users.
-			      if (!isHomePage && blogSection) {
-			        blogSection.classList.remove('d-none');
-			      }
-				      if (!isHomePage && appSection) {
-				        appSection.classList.remove('d-none');
+				      // Keep the homepage clean: never show the Blog section on the homepage,
+				      // even when a user is logged in. The dedicated blog.html page will
+				      // continue to show the blog for authenticated users.
+				      if (!isHomePage && blogSection) {
+				        blogSection.classList.remove('d-none');
 				      }
+					      if (!isHomePage && appSection) {
+					        appSection.classList.remove('d-none');
+					        appSection.classList.remove('blog-locked');
+					      }
 			      if (userLabel) {
 			        userLabel.textContent = '';
 			        if (isBlogPage && currentUser) {
-			          const before = 'Good to have you here, ';
-			          const sentenceBreak = '. ';
-			          const secondLine = "My writings are not conclusions. They’re conversations waiting to happen.";
+			          const line1 = document.createElement('span');
 			          const usernameSpan = document.createElement('span');
+			          const line2 = document.createElement('span');
+			          line1.className = 'd-block';
 			          usernameSpan.className = 'fw-bold text-warning';
-			          usernameSpan.textContent = currentUser.username || '';
-			          const br = document.createElement('br');
-			          userLabel.append(
-			            document.createTextNode(before),
-			            usernameSpan,
-			            document.createTextNode(sentenceBreak),
-			            br,
-			            document.createTextNode(secondLine)
-			          );
+			          line2.className = 'd-block text-muted blog-hero-subtitle';
+			          usernameSpan.textContent = (currentUser.username || '') + '.';
+			          line1.append('Welcome back, ', usernameSpan);
+			          line2.textContent = "My writings are not conclusions. They’re conversations waiting to happen.";
+			          userLabel.append(line1, line2);
 			        }
 			      }
 				      if (headerUser && currentUser) {
@@ -1264,15 +1261,37 @@
 					          document.title = "Editor's Portal - DMohan";
 					        }
 					      }
-			    } else {
-			      if (blogSection) {
-			        blogSection.classList.add('d-none');
-			      }
-			      if (appSection) {
-			        appSection.classList.add('d-none');
-			      }
+					    } else {
+				      // When not authenticated, keep the dedicated blog page visible but
+				      // show a gated view instead of redirecting away. Other pages still
+				      // hide the blog section entirely.
+				      if (blogSection) {
+				        if (isBlogPage) {
+				          blogSection.classList.remove('d-none');
+				        } else {
+				          blogSection.classList.add('d-none');
+				        }
+				      }
+				      if (appSection) {
+				        if (isBlogPage) {
+				          appSection.classList.remove('d-none');
+				          appSection.classList.add('blog-locked');
+				        } else {
+				          appSection.classList.add('d-none');
+				          appSection.classList.remove('blog-locked');
+				        }
+				      }
 			      if (userLabel) {
 			        userLabel.textContent = '';
+			        if (isBlogPage) {
+				          const titleSpan = document.createElement('span');
+				          titleSpan.className = 'd-block';
+				          titleSpan.textContent = "Sign in to read Deepak's blog.";
+				          const subtitleSpan = document.createElement('span');
+				          subtitleSpan.className = 'd-block text-muted blog-hero-subtitle';
+				          subtitleSpan.textContent = 'I keep posts private so I can write more honestly.';
+			          userLabel.append(titleSpan, subtitleSpan);
+			        }
 			      }
 		      if (headerUser) {
 				        headerUser.textContent = '';
@@ -1387,11 +1406,18 @@
 		      hideAuthModal();
 		      const form = event.target;
 		      if (form && typeof form.reset === 'function') form.reset();
-			      // After successful login, navigate to the dedicated blog page
-			      const path = window.location.pathname || '';
-			      if (!path.endsWith('blog.html')) {
-			        window.location.href = 'blog.html';
-			      }
+						      // After successful login, either load posts in-place on the
+						      // dedicated blog page or navigate there from other pages.
+						      const path = window.location.pathname || '';
+						      const isBlogPage =
+						        path.endsWith('blog.html') ||
+						        path.endsWith('/blog') ||
+						        path.endsWith('/blog/');
+						      if (isBlogPage) {
+						        loadPosts();
+						      } else {
+						        window.location.href = 'blog.html';
+						      }
 		    } catch (err) {
 		      console.error(err);
 		      showAuthStatus(err.message || 'Could not log in. Please check your credentials.', 'error');
@@ -1427,10 +1453,16 @@
 		      setAuthenticatedUI(true);
 		      showBlogStatus(`Logged in as ${currentUser.username}.`, 'success');
 		      hideAuthModal();
-			      const path = window.location.pathname || '';
-			      if (!path.endsWith('blog.html')) {
-			        window.location.href = 'blog.html';
-			      }
+					      const path = window.location.pathname || '';
+					      const isBlogPage =
+					        path.endsWith('blog.html') ||
+					        path.endsWith('/blog') ||
+					        path.endsWith('/blog/');
+					      if (isBlogPage) {
+					        loadPosts();
+					      } else {
+					        window.location.href = 'blog.html';
+					      }
 		    } catch (err) {
 		      console.error(err);
 		      showAuthStatus(err.message || 'Could not log in with Google. Please try again.', 'error');
@@ -2392,28 +2424,29 @@
 			    setPostsLayout(nextLayout);
 			  };
 
-			  const initBlogApp = () => {
-		    // Only run if the blog section exists on this page
-		    if (!select('#blog')) return;
-		  
-		    loadStoredAuth();
-		    ensurePostReader();
-					
-				    // If this is the dedicated blog or admin page and there is no
-		    // valid auth, send the user back to the homepage to sign in.
-			    const path = window.location.pathname || '';
-			    const isBlogPage =
-			      path.endsWith('blog.html') ||
-			      path.endsWith('/blog') ||
-			      path.endsWith('/blog/');
-			    const isAdminPage =
-			      path.endsWith('admin.html') ||
-			      path.endsWith('/admin') ||
-			      path.endsWith('/admin/');
-			    if ((!authToken || !currentUser) && (isBlogPage || isAdminPage)) {
-		      window.location.href = 'index.html';
-		      return;
-		    }
+					  const initBlogApp = () => {
+				    // Only run if the blog section exists on this page
+				    if (!select('#blog')) return;
+				  
+				    loadStoredAuth();
+				    ensurePostReader();
+							
+						    const path = window.location.pathname || '';
+				    const isBlogPage =
+				      path.endsWith('blog.html') ||
+				      path.endsWith('/blog') ||
+				      path.endsWith('/blog/');
+				    const isAdminPage =
+				      path.endsWith('admin.html') ||
+				      path.endsWith('/admin') ||
+				      path.endsWith('/admin/');
+				    // Unauthenticated users are still redirected away from the admin
+				    // portal, but can remain on the dedicated blog reader page and see
+				    // a gated view instead.
+				    if ((!authToken || !currentUser) && isAdminPage) {
+				      window.location.href = 'index.html';
+				      return;
+				    }
 			    // If a non-privileged user somehow reaches the admin page, redirect
 			    // them back to the normal blog reader. Admins and editors may
 			    // remain on the admin page.
@@ -2427,13 +2460,13 @@
 		      return;
 		    }
 		
-		    const signupForm = select('#signup-form');
-		    const loginForm = select('#login-form');
-		    const createPostForm = select('#create-post-form');
-		    const logoutBtn = select('#logout-btn');
-		    const headerLogoutBtn = select('#auth-logout-btn');
-		    const headerGoBlogBtn = select('#auth-go-blog-btn');
-		    const postsList = select('#posts-list');
+			    const signupForm = select('#signup-form');
+			    const loginForm = select('#login-form');
+			    const createPostForm = select('#create-post-form');
+			    const logoutBtn = select('#logout-btn');
+			    const headerLogoutBtn = select('#auth-logout-btn');
+			    const headerGoBlogBtn = select('#auth-go-blog-btn');
+			    const postsList = select('#posts-list');
 		    const adminUsersBody = select('#admin-users-body');
 		    const categoryFilter = select('#blog-category-filter');
 		    const layoutToggle = select('#blog-layout-toggle');
@@ -2459,7 +2492,7 @@
 				    if (headerLogoutBtn) {
 				      headerLogoutBtn.addEventListener('click', handleLogoutClick);
 				    }
-		    	if (headerGoBlogBtn) {
+			    if (headerGoBlogBtn) {
 			      headerGoBlogBtn.addEventListener('click', () => {
 			        window.location.href = 'blog.html';
 			      });
@@ -2512,7 +2545,7 @@
 			      setAuthenticatedUI(true);
 			      loadPosts();
 			    } else {
-		      setAuthenticatedUI(false);
+				      setAuthenticatedUI(false);
 		    }
 		  };
 
