@@ -81,16 +81,23 @@ func updateUserRole(context *gin.Context) {
 }
 
 func login(context *gin.Context) {
-	var user models.User
-	err := context.ShouldBindJSON(&user)
+	var payload struct {
+		Username   string `json:"username" binding:"required"`
+		Password   string `json:"password" binding:"required"`
+		RememberMe bool   `json:"rememberMe"`
+	}
 
-	if err != nil {
-		context.JSON(http.StatusBadRequest , gin.H{"message": "Could not bind JSON"})
+	if err := context.ShouldBindJSON(&payload); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not bind JSON"})
 		return
 	}
 
-	err = user.ValidateCredentials()
-	if err != nil {
+	user := models.User{
+		Username: payload.Username,
+		Password: payload.Password,
+	}
+
+	if err := user.ValidateCredentials(); err != nil {
 		if errors.Is(err, models.ErrUserNotFound) {
 			context.JSON(http.StatusUnauthorized, gin.H{"message": "User does not exist. Please sign up as a new user."})
 			return
@@ -109,11 +116,29 @@ func login(context *gin.Context) {
 
 	token, err := utils.GenerateJWTToken(user.Username, user.ID, user.Role)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError , gin.H{"message": "Could not authenticate user"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not authenticate user"})
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "User authenticated successfully", "token": token, "userId": user.ID, "username": user.Username, "role": user.Role})
+	response := gin.H{
+		"message":  "User authenticated successfully",
+		"token":    token,
+		"userId":   user.ID,
+		"username": user.Username,
+		"role":     user.Role,
+	}
+
+	if payload.RememberMe {
+		rememberToken, err := utils.GenerateRememberMeToken(user.ID)
+		if err != nil {
+			log.Printf("login: failed to generate remember-me token: %v", err)
+			context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not authenticate user"})
+			return
+		}
+		response["rememberToken"] = rememberToken
+	}
+
+	context.JSON(http.StatusOK, response)
 }
 
 // googleLogin allows clients to exchange a Google ID token (obtained via the
@@ -121,7 +146,8 @@ func login(context *gin.Context) {
 // that works with the existing authentication middleware.
 func googleLogin(context *gin.Context) {
 	var payload struct {
-		IDToken string `json:"idToken"`
+		IDToken    string `json:"idToken"`
+		RememberMe bool   `json:"rememberMe"`
 	}
 
 	if err := context.ShouldBindJSON(&payload); err != nil || payload.IDToken == "" {
@@ -159,7 +185,7 @@ func googleLogin(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{
+	response := gin.H{
 		"message":   "User authenticated via Google",
 		"token":     token,
 		"userId":    user.ID,
@@ -167,5 +193,63 @@ func googleLogin(context *gin.Context) {
 		"email":     user.Username, // canonical login identifier (email for Google accounts)
 		"avatarUrl": avatarURL,     // Google profile photo URL, if provided
 		"role":      user.Role,
+	}
+
+	if payload.RememberMe {
+		rememberToken, err := utils.GenerateRememberMeToken(user.ID)
+		if err != nil {
+			log.Printf("googleLogin: failed to generate remember-me token: %v", err)
+			context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not authenticate user"})
+			return
+		}
+		response["rememberToken"] = rememberToken
+	}
+
+	context.JSON(http.StatusOK, response)
+}
+
+// rememberLogin allows a client that holds a long-lived "remember me" token to
+// obtain a fresh short-lived JWT without re-entering credentials.
+func rememberLogin(context *gin.Context) {
+	var payload struct {
+		RememberToken string `json:"rememberToken"`
+	}
+
+	if err := context.ShouldBindJSON(&payload); err != nil || payload.RememberToken == "" {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid remember-me payload"})
+		return
+	}
+
+	userID, err := utils.VerifyRememberMeToken(payload.RememberToken)
+	if err != nil {
+		log.Printf("rememberLogin: failed to verify remember-me token: %v", err)
+		context.JSON(http.StatusUnauthorized, gin.H{"message": "Could not authenticate user"})
+		return
+	}
+
+	user, err := models.GetUserByID(userID)
+	if err != nil {
+		if errors.Is(err, models.ErrUserNotFound) {
+			context.JSON(http.StatusUnauthorized, gin.H{"message": "Could not authenticate user"})
+			return
+		}
+
+		log.Printf("rememberLogin: GetUserByID(%d) failed: %v", userID, err)
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not authenticate user"})
+		return
+	}
+
+	token, err := utils.GenerateJWTToken(user.Username, user.ID, user.Role)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not authenticate user"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{
+		"message":  "User authenticated from remember-me token",
+		"token":    token,
+		"userId":   user.ID,
+		"username": user.Username,
+		"role":     user.Role,
 	})
 }

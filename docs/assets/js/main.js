@@ -432,7 +432,80 @@
 	    persistAuth();
 	  };
 		
-		  const hideAuthModal = () => {
+		  const REMEMBER_ME_COOKIE_NAME = 'dm-blog-remember';
+		  const REMEMBER_ME_MAX_AGE_DAYS = 30;
+
+		  const setRememberMeCookie = (token) => {
+		    try {
+		      if (!token) {
+		        // Clear the cookie if an empty or falsy token is provided.
+		        document.cookie = `${REMEMBER_ME_COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax`;
+		        return;
+		      }
+		      const maxAgeSeconds = REMEMBER_ME_MAX_AGE_DAYS * 24 * 60 * 60;
+		      document.cookie = `${REMEMBER_ME_COOKIE_NAME}=${encodeURIComponent(token)}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=Lax`;
+		    } catch (e) {
+		      // Access to document.cookie can fail in very locked-down environments;
+		      // authentication will still work without the remember-me cookie.
+		    }
+		  };
+
+		  const clearRememberMeCookie = () => {
+		    try {
+		      document.cookie = `${REMEMBER_ME_COOKIE_NAME}=; Max-Age=0; Path=/; SameSite=Lax`;
+		    } catch (e) {
+		      // Ignore cookie clearing errors.
+		    }
+		  };
+
+		  const getRememberMeTokenFromCookie = () => {
+		    try {
+		      const all = document.cookie || '';
+		      const parts = all.split(';');
+		      for (let i = 0; i < parts.length; i += 1) {
+		        const part = parts[i].trim();
+		        if (!part.startsWith(`${REMEMBER_ME_COOKIE_NAME}=`)) continue;
+		        return decodeURIComponent(part.substring(REMEMBER_ME_COOKIE_NAME.length + 1));
+		      }
+		    } catch (e) {
+		      // Ignore cookie parsing errors and fall back to no token.
+		    }
+		    return '';
+		  };
+
+		  const resumeSessionFromRememberMe = async () => {
+		    // If we already have a token in localStorage, there is nothing to do.
+		    if (authToken && currentUser) return false;
+
+		    const rememberToken = getRememberMeTokenFromCookie();
+		    if (!rememberToken) return false;
+
+		    try {
+		      const data = await apiRequest('/login/remember', {
+		        method: 'POST',
+		        headers: { 'Content-Type': 'application/json' },
+		        body: JSON.stringify({ rememberToken })
+		      });
+
+		      authToken = data.token;
+		      currentUser = {
+		        id: data.userId,
+		        username: data.username,
+		        role: data.role || 'user',
+		        avatarUrl: data.avatarUrl || null
+		      };
+		      persistAuth();
+		      return true;
+		    } catch (err) {
+		      // If the token is invalid or expired, clear it so we don't repeatedly
+		      // attempt to use it on every page load.
+		      console.error(err);
+		      clearRememberMeCookie();
+		      return false;
+		    }
+		  };
+		
+			  const hideAuthModal = () => {
 		    const modalEl = document.getElementById('auth-modal');
 		    if (!modalEl || !window.bootstrap || !window.bootstrap.Modal) return;
 		    const Modal = window.bootstrap.Modal;
@@ -1440,6 +1513,8 @@
 		    event.preventDefault();
 		    const username = select('#login-username')?.value.trim();
 		    const password = select('#login-password')?.value;
+		    const rememberCheckbox = select('#login-remember');
+		    const rememberMe = !!(rememberCheckbox && rememberCheckbox.checked);
 		    if (!username || !password) {
 		      showAuthStatus('Please enter both username and password.', 'error');
 		      return;
@@ -1448,7 +1523,7 @@
 		      const data = await apiRequest('/login', {
 		        method: 'POST',
 		        headers: { 'Content-Type': 'application/json' },
-		        body: JSON.stringify({ username, password })
+		        body: JSON.stringify({ username, password, rememberMe })
 		      });
 			      authToken = data.token;
 			      currentUser = {
@@ -1458,6 +1533,11 @@
 			        avatarUrl: null
 			      };
 		      persistAuth();
+		      if (rememberMe && data.rememberToken) {
+		        setRememberMeCookie(data.rememberToken);
+		      } else {
+		        clearRememberMeCookie();
+		      }
 		      setAuthenticatedUI(true);
 		      showBlogStatus(`Logged in as ${currentUser.username}.`, 'success');
 		      hideAuthModal();
@@ -1492,11 +1572,13 @@
 		        showAuthStatus('Google login failed: missing credential.', 'error');
 		        return;
 		      }
-
+		      const rememberCheckbox = select('#login-remember');
+		      const rememberMe = !!(rememberCheckbox && rememberCheckbox.checked);
+		
 		      const data = await apiRequest('/login/google', {
 		        method: 'POST',
 		        headers: { 'Content-Type': 'application/json' },
-		        body: JSON.stringify({ idToken })
+		        body: JSON.stringify({ idToken, rememberMe })
 		      });
 
 		      authToken = data.token;
@@ -1507,6 +1589,11 @@
 		        avatarUrl: data.avatarUrl || null
 		      };
 		      persistAuth();
+		      if (rememberMe && data.rememberToken) {
+		        setRememberMeCookie(data.rememberToken);
+		      } else {
+		        clearRememberMeCookie();
+		      }
 		      setAuthenticatedUI(true);
 		      showBlogStatus(`Logged in as ${currentUser.username}.`, 'success');
 		      hideAuthModal();
@@ -1529,6 +1616,7 @@
 		  const handleLogoutClick = () => {
 		    hideAuthModal();
 		    clearAuth();
+		    clearRememberMeCookie();
 		    setAuthenticatedUI(false);
 		    showBlogStatus('You have been logged out.', 'info');
 		    const path = window.location.pathname || '';
@@ -2481,12 +2569,13 @@
 			    setPostsLayout(nextLayout);
 			  };
 
-					  const initBlogApp = () => {
+					  const initBlogApp = async () => {
 				    // Only run if the blog section exists on this page
 				    if (!select('#blog')) return;
 				  
-				    loadStoredAuth();
-				    ensurePostReader();
+					    loadStoredAuth();
+					    await resumeSessionFromRememberMe();
+					    ensurePostReader();
 							
 						    const path = window.location.pathname || '';
 				    const isBlogPage =
