@@ -1058,12 +1058,16 @@
 						    postReaderInitialized = true;
 						  };
 						
-								  const openPostInReader = (item) => {
-								    ensurePostReader();
-								    if (!postReaderOverlay || !postReaderBody) return;
-								  
-								    const postId = item.dataset.postId || '';
-								    const body = item.dataset.body || '';
+						  const openPostInReader = (item) => {
+						    ensurePostReader();
+						    if (!postReaderOverlay || !postReaderBody) return;
+						  
+						    // If a mobile search overlay is open, close it when entering the
+						    // full-screen reader so the content can take the focus.
+						    document.body.classList.remove('blog-search-open');
+						  
+						    const postId = item.dataset.postId || '';
+						    const body = item.dataset.body || '';
 								  
 								    postReaderCurrentPostId = postId || null;
 								    resetPostReaderCommentsState();
@@ -2613,11 +2617,12 @@
 			    const headerLogoutBtn = select('#auth-logout-btn');
 			    const headerGoBlogBtn = select('#auth-go-blog-btn');
 			    const postsList = select('#posts-list');
-		    const adminUsersBody = select('#admin-users-body');
-		    const categoryFilter = select('#blog-category-filter');
-		    const layoutToggle = select('#blog-layout-toggle');
-				    const searchInput = select('#blog-search');
-			    const createPostToggleBtn = select('#btn-toggle-create-post');
+				    const adminUsersBody = select('#admin-users-body');
+			    const categoryFilter = select('#blog-category-filter');
+			    const layoutToggle = select('#blog-layout-toggle');
+					    const searchInput = select('#blog-search');
+					    const searchToggleBtn = select('#blog-search-toggle');
+				    const createPostToggleBtn = select('#btn-toggle-create-post');
 			    const adminPanelToggleBtn = select('#btn-toggle-admin-panel');
 			    const analysisPanelToggleBtn = select('#btn-toggle-analysis-panel');
 			    const postsPagination = select('#posts-pagination');
@@ -2669,16 +2674,42 @@
 		    if (postsList) {
 		      postsList.addEventListener('click', handlePostListClick);
 		    }
-			    if (postsPagination) {
-			      postsPagination.addEventListener('click', handlePostsPaginationClick);
-			    }
-			    if (categoryFilter) {
-			      categoryFilter.addEventListener('change', handleCategoryFilterChange);
-			    }
-				    if (searchInput) {
-				      searchInput.addEventListener('input', handleSearchInput);
+				    if (postsPagination) {
+				      postsPagination.addEventListener('click', handlePostsPaginationClick);
 				    }
-									    if (layoutToggle) {
+				    if (categoryFilter) {
+				      categoryFilter.addEventListener('change', handleCategoryFilterChange);
+				    }
+					    if (searchInput) {
+					      searchInput.addEventListener('input', handleSearchInput);
+					    }
+					    if (searchToggleBtn) {
+					      searchToggleBtn.addEventListener('click', () => {
+					        const isMobile =
+					          typeof window !== 'undefined' &&
+					          typeof window.matchMedia === 'function' &&
+					          window.matchMedia('(max-width: 575.98px)').matches;
+					
+					        // On larger screens, just focus the inline search box.
+					        if (!isMobile) {
+					          if (searchInput instanceof HTMLInputElement) {
+					            searchInput.focus();
+					            searchInput.select();
+					          }
+					          return;
+					        }
+					
+					        const body = document.body;
+					        const nowOpen = body.classList.toggle('blog-search-open');
+					        if (nowOpen && searchInput instanceof HTMLInputElement) {
+					          searchInput.focus();
+					          searchInput.select();
+					        } else if (!nowOpen && searchInput instanceof HTMLInputElement) {
+					          searchInput.blur();
+					        }
+					      });
+					    }
+						    if (layoutToggle) {
 									      layoutToggle.addEventListener('click', handleLayoutToggleClick);
 									      // Ensure the toggle button text/ARIA reflect the initial layout
 									      updateLayoutToggleUI();
