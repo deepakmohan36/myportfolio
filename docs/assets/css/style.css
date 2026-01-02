@@ -1578,15 +1578,15 @@ section {
   margin-top: 0.25rem;
 }
 
-.auth-bar .dropdown-item {
-		  font-size: 0.8rem;
-  color: #e2e8f0;
-  border-radius: 999px;
-  padding: 0.4rem 0.75rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
+	.auth-bar .dropdown-item {
+				  font-size: 0.8rem;
+	  color: #e2e8f0;
+	  border-radius: 999px;
+	  padding: 0.4rem 0.75rem;
+	  display: flex;
+	  align-items: center;
+	  gap: 0.4rem;
+	}
 
 .auth-bar .dropdown-item:hover,
 .auth-bar .dropdown-item:focus {
@@ -1594,27 +1594,23 @@ section {
   color: #f9fafb;
 }
 
-/* Make the logout option feel less like a primary action */
-.auth-bar #auth-logout-btn {
-		  font-weight: 500;
-		  opacity: 0.9;
-		  border-radius: 0;
-		  border: 0;
-			  padding: 0.4rem 0.75rem;
-		}
+	/* Logout entry inside the avatar dropdown: style it like the other menu items. */
+	.auth-bar #auth-logout-btn {
+				  font-weight: 500;
+				  opacity: 0.9;
+				  border-radius: 999px; /* match other .dropdown-item elements */
+				  border: 0;
+				  padding: 0.4rem 0.75rem;
+				  background: transparent; /* no persistent box when idle */
+				}
 
-.auth-bar #auth-logout-btn:hover,
-.auth-bar #auth-logout-btn:focus {
-		  background: transparent;
-		  color: #e5e7f0;
-		  box-shadow: none;
-		}
-
-.auth-bar #auth-logout-btn:hover,
-.auth-bar #auth-logout-btn:focus {
-	  background: transparent;
-	  color: #e5e7f0;
-}
+	/* On hover/focus, use the same gradient highlight as other dropdown items. */
+	.auth-bar #auth-logout-btn:hover,
+	.auth-bar #auth-logout-btn:focus {
+	  background: linear-gradient(135deg, rgba(20, 192, 221, 0.2), rgba(159, 122, 234, 0.25));
+	  color: #f9fafb;
+	  box-shadow: none;
+	}
 
 .auth-bar .dropdown-menu button {
   width: 100%;
