@@ -347,9 +347,46 @@
 	   */
 	  new PureCounter();
 
-	  /**
-	   * BLOG / AUTH INTEGRATION (matches Go server in /server)
-	   */
+  /**
+   * BLOG / AUTH INTEGRATION (matches Go server in /server)
+   */
+
+		  // Local storage key for tracking which users have already seen the
+		  // blog welcome message. This lets us show a different greeting once for
+		  // first-time users on this browser.
+		  const KNOWN_USERS_STORAGE_KEY = 'dm-blog-known-users';
+
+		  const loadKnownUsers = () => {
+		    try {
+		      const raw = window.localStorage.getItem(KNOWN_USERS_STORAGE_KEY);
+		      if (!raw) return [];
+		      const parsed = JSON.parse(raw);
+		      return Array.isArray(parsed) ? parsed : [];
+		    } catch (e) {
+		      return [];
+		    }
+		  };
+
+		  const persistKnownUsers = (usernames) => {
+		    try {
+		      window.localStorage.setItem(KNOWN_USERS_STORAGE_KEY, JSON.stringify(usernames));
+		    } catch (e) {}
+		  };
+
+		  const markFirstTimeUserIfNeeded = (isAuthed, isBlogPage) => {
+		    if (!isAuthed || !isBlogPage || !currentUser || !currentUser.username) {
+		      return false;
+		    }
+		    const username = String(currentUser.username);
+		    if (!username) return false;
+		    const known = loadKnownUsers();
+		    if (known.includes(username)) {
+		      return false;
+		    }
+		    known.push(username);
+		    persistKnownUsers(known);
+		    return true;
+		  };
 
 		  const loadStoredAuth = () => {
 		    try {
@@ -550,58 +587,71 @@
 										    return formatted;
 										  };
 										  
-										  const renderBasicMarkdown = (markdown) => {
-										    if (!markdown) return '';
-										    const escaped = escapeHtml(markdown);
-										    const lines = escaped.split(/\r?\n/);
-										    const htmlLines = [];
-										    let inList = false;
-										  
-										    const closeList = () => {
-										      if (inList) {
-										        htmlLines.push('</ul>');
-										        inList = false;
-										      }
-										    };
-										  
-										    for (let i = 0; i < lines.length; i += 1) {
-										      const rawLine = lines[i];
-										      const line = rawLine.trimEnd();
-										  
-										      if (!line.trim()) {
-										        // Blank line -> paragraph / list separator.
-										        closeList();
-										        continue;
-										      }
-										  
-										      const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
-										      if (headingMatch) {
-										        closeList();
-										        const level = headingMatch[1].length;
-										        const text = applyInlineMarkdownFormatting(headingMatch[2].trim());
-										        htmlLines.push(`<h${level}>${text}<\/h${level}>`);
-										        continue;
-										      }
-										  
-										      const listMatch = line.match(/^[-*]\s+(.*)$/);
-										      if (listMatch) {
-										        if (!inList) {
-										          inList = true;
-										          htmlLines.push('<ul>');
-										        }
-										        const itemText = applyInlineMarkdownFormatting(listMatch[1].trim());
-										        htmlLines.push(`<li>${itemText}<\/li>`);
-										        continue;
-										      }
-										  
-										      closeList();
-										      const paragraphText = applyInlineMarkdownFormatting(line.trim());
-										      htmlLines.push(`<p>${paragraphText}<\/p>`);
-										    }
-										  
-										    closeList();
-										    return htmlLines.join('\n');
-										  };
+								  const renderBasicMarkdown = (markdown) => {
+									    if (!markdown) return '';
+									    const escaped = escapeHtml(markdown);
+									    const lines = escaped.split(/\r?\n/);
+									    const htmlLines = [];
+									    let inList = false;
+									    let paragraphLines = [];
+									  
+									    const closeList = () => {
+									      if (inList) {
+									        htmlLines.push('</ul>');
+									        inList = false;
+									      }
+									    };
+									  
+									    const flushParagraph = () => {
+									      if (!paragraphLines.length) return;
+									      const paragraphText = paragraphLines.join('<br>');
+									      const formatted = applyInlineMarkdownFormatting(paragraphText);
+									      htmlLines.push(`<p>${formatted}<\/p>`);
+									      paragraphLines = [];
+									    };
+									  
+									    for (let i = 0; i < lines.length; i += 1) {
+									      const rawLine = lines[i];
+									      const line = rawLine.trimEnd();
+									  
+									      if (!line.trim()) {
+									        // Blank line -> end of current paragraph or list.
+									        closeList();
+									        flushParagraph();
+									        continue;
+									      }
+									  
+									      const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
+									      if (headingMatch) {
+									        closeList();
+									        flushParagraph();
+									        const level = headingMatch[1].length;
+									        const text = applyInlineMarkdownFormatting(headingMatch[2].trim());
+									        htmlLines.push(`<h${level}>${text}<\/h${level}>`);
+									        continue;
+									      }
+									  
+									      const listMatch = line.match(/^[-*]\s+(.*)$/);
+									      if (listMatch) {
+									        flushParagraph();
+									        if (!inList) {
+									          inList = true;
+									          htmlLines.push('<ul>');
+									        }
+									        const itemText = applyInlineMarkdownFormatting(listMatch[1].trim());
+									        htmlLines.push(`<li>${itemText}<\/li>`);
+									        continue;
+									      }
+									  
+									      // Normal text line: accumulate into the current paragraph so
+									      // single newlines become <br> within the same block.
+									      paragraphLines.push(line.trim());
+									    }
+									  
+									    closeList();
+									    flushParagraph();
+									    return htmlLines.join('\n');
+									  };
 								
 										  // Centered reader view overlay for blog posts
 										  let postReaderOverlay = null;
@@ -1117,11 +1167,14 @@
 				      path.endsWith('admin.html') ||
 				      path.endsWith('/admin') ||
 				      path.endsWith('/admin/');
-				    const isBlogPage =
-				      path.endsWith('blog.html') ||
-				      path.endsWith('/blog') ||
-				      path.endsWith('/blog/');
-			    const blogSection = select('#blog');
+					    const isBlogPage =
+					      path.endsWith('blog.html') ||
+					      path.endsWith('/blog') ||
+					      path.endsWith('/blog/');
+					    // Track whether this is the first authenticated visit to the blog
+					    // page for the current username on this browser.
+					    const isFirstTimeUser = markFirstTimeUserIfNeeded(isAuthed, isBlogPage);
+				    const blogSection = select('#blog');
 			    const appSection = select('#blog-app');
 			    const userLabel = select('#blog-current-user');
 		    const headerUser = select('#auth-user');
@@ -1150,21 +1203,25 @@
 					        appSection.classList.remove('d-none');
 					        appSection.classList.remove('blog-locked');
 					      }
-			      if (userLabel) {
-			        userLabel.textContent = '';
-			        if (isBlogPage && currentUser) {
-			          const line1 = document.createElement('span');
-			          const usernameSpan = document.createElement('span');
-			          const line2 = document.createElement('span');
-			          line1.className = 'd-block';
-			          usernameSpan.className = 'fw-bold text-warning';
-			          line2.className = 'd-block text-muted blog-hero-subtitle';
-			          usernameSpan.textContent = (currentUser.username || '') + '.';
-			          line1.append('Welcome back, ', usernameSpan);
-			          line2.textContent = "My writings are not conclusions. They’re conversations waiting to happen.";
-			          userLabel.append(line1, line2);
-			        }
-			      }
+				      if (userLabel) {
+				        userLabel.textContent = '';
+				        if (isBlogPage && currentUser) {
+				          const line1 = document.createElement('span');
+				          const usernameSpan = document.createElement('span');
+				          const line2 = document.createElement('span');
+				          line1.className = 'd-block';
+				          usernameSpan.className = 'fw-bold text-warning';
+				          line2.className = 'd-block text-muted blog-hero-subtitle';
+				          usernameSpan.textContent = (currentUser.username || '') + '.';
+				          if (isFirstTimeUser) {
+				            line1.append('Thanks for signing up, ', usernameSpan);
+				          } else {
+				            line1.append('Welcome back, ', usernameSpan);
+				          }
+				          line2.textContent = "My writings are not conclusions. They’re conversations waiting to happen.";
+				          userLabel.append(line1, line2);
+				        }
+				      }
 				      if (headerUser && currentUser) {
 				        headerUser.textContent = currentUser.username;
 				        headerUser.classList.remove('d-none');
