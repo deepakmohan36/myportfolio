@@ -10,6 +10,7 @@ func RegisterRoutes(server *gin.Engine) {
 	server.POST("/signup", signup)
 	server.POST("/login", login)
 	server.POST("/login/google", googleLogin)
+	server.POST("/login/remember", rememberLogin)
 
 		// All blog post routes are behind authentication so users must log in
 		// before reading or managing your blogs.
