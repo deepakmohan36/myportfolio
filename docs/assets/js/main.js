@@ -1970,10 +1970,24 @@
 			      makeUserBtn.dataset.userId = String(user.id);
 			      makeUserBtn.dataset.targetRole = 'user';
 			      makeUserBtn.textContent = 'Make reader';
+
+				      // Allow admins to delete a user entirely. For safety, prefer not to
+				      // show the delete option next to your own account.
+				      let deleteBtn = null;
+				      if (!isCurrent) {
+				        deleteBtn = document.createElement('button');
+				        deleteBtn.type = 'button';
+				        deleteBtn.className = 'btn btn-sm btn-outline-danger ms-1 admin-delete-user';
+				        deleteBtn.dataset.userId = String(user.id);
+				        deleteBtn.textContent = 'Delete user';
+				      }
 			
 			      actionsCell.appendChild(makeAdminBtn);
 			      actionsCell.appendChild(makeEditorBtn);
 			      actionsCell.appendChild(makeUserBtn);
+				      if (deleteBtn) {
+				        actionsCell.appendChild(deleteBtn);
+				      }
 		      row.appendChild(nameCell);
 		      row.appendChild(roleCell);
 		      row.appendChild(actionsCell);
@@ -2490,47 +2504,84 @@
 		    }
 	  };
 
-		  const handleAdminUsersClick = async (event) => {
-		    const target = event.target;
-		    if (!(target instanceof HTMLElement)) return;
-		    if (!target.classList.contains('admin-role-toggle')) return;
+			  const handleAdminUsersClick = async (event) => {
+			    const target = event.target;
+			    if (!(target instanceof HTMLElement)) return;
+			    const roleBtn = target.closest('.admin-role-toggle');
+			    const deleteBtn = target.closest('.admin-delete-user');
 
-		    if (!authToken || !currentUser || currentUser.role !== 'admin') return;
+			    if (!roleBtn && !deleteBtn) return;
+			    if (!authToken || !currentUser || currentUser.role !== 'admin') return;
 
-		    const userId = target.dataset.userId;
-		    const newRole = target.dataset.targetRole;
-		    if (!userId || !newRole) return;
+			    // Handle role changes (make admin/editor/reader).
+			    if (roleBtn) {
+			      const userId = roleBtn.dataset.userId;
+			      const newRole = roleBtn.dataset.targetRole;
+			      if (!userId || !newRole) return;
 
-			    let confirmText;
-			    if (newRole === 'admin') {
-			      confirmText = 'Make this user an admin?';
-			    } else if (newRole === 'editor') {
-			      confirmText = 'Make this user an editor?';
-			    } else {
-			      confirmText = 'Make this user a regular reader?';
+			      let confirmText;
+			      if (newRole === 'admin') {
+			        confirmText = 'Make this user an admin?';
+			      } else if (newRole === 'editor') {
+			        confirmText = 'Make this user an editor?';
+			      } else {
+			        confirmText = 'Make this user a regular reader?';
+			      }
+			      if (!window.confirm(confirmText)) return;
+
+			      try {
+			        await apiRequest(`/users/${userId}/role`, {
+			          method: 'PUT',
+			          headers: { 'Content-Type': 'application/json' },
+			          body: JSON.stringify({ role: newRole })
+			        });
+			        showAdminUsersStatus('Role updated successfully.', 'success');
+
+			        // If we changed our own role, update the in-memory auth state and UI.
+			        if (currentUser && String(currentUser.id) === String(userId)) {
+			          currentUser.role = newRole;
+			          persistAuth();
+			          setAuthenticatedUI(true);
+			        }
+			        await loadAdminUsers();
+			      } catch (err) {
+			        console.error(err);
+			        showAdminUsersStatus(err.message || 'Could not update role.', 'error');
+			      }
+			      return;
 			    }
-		    if (!window.confirm(confirmText)) return;
 
-		    try {
-		      await apiRequest(`/users/${userId}/role`, {
-		        method: 'PUT',
-		        headers: { 'Content-Type': 'application/json' },
-		        body: JSON.stringify({ role: newRole })
-		      });
-		      showAdminUsersStatus('Role updated successfully.', 'success');
+			    // Handle permanent user deletion.
+			    if (deleteBtn) {
+			      const userId = deleteBtn.dataset.userId;
+			      if (!userId) return;
 
-		      // If we changed our own role, update the in-memory auth state and UI.
-		      if (currentUser && String(currentUser.id) === String(userId)) {
-		        currentUser.role = newRole;
-		        persistAuth();
-		        setAuthenticatedUI(true);
-		      }
-		      await loadAdminUsers();
-		    } catch (err) {
-		      console.error(err);
-		      showAdminUsersStatus(err.message || 'Could not update role.', 'error');
-		    }
-		  };
+			      const isCurrent = currentUser && String(currentUser.id) === String(userId);
+			      const confirmText = isCurrent
+			        ? 'Delete your own account? You will be logged out.'
+			        : 'Permanently delete this user? This cannot be undone.';
+			      if (!window.confirm(confirmText)) return;
+
+			      try {
+			        await apiRequest(`/users/${userId}`, {
+			          method: 'DELETE'
+			        });
+			        showAdminUsersStatus('User deleted successfully.', 'success');
+
+			        if (isCurrent) {
+			          // If we deleted our own account, clear local auth state.
+			          clearAuth();
+			          clearRememberMeCookie();
+			          setAuthenticatedUI(false);
+			        } else {
+			          await loadAdminUsers();
+			        }
+			      } catch (err) {
+			        console.error(err);
+			        showAdminUsersStatus(err.message || 'Could not delete user.', 'error');
+			      }
+			    }
+			  };
 
 		  const handleCategoryFilterChange = (event) => {
 			    const selectEl = event.target;

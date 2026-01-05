@@ -39,5 +39,6 @@ func RegisterRoutes(server *gin.Engine) {
 			adminOnly.Use(middlewares.RequireAdmin)
 			adminOnly.GET("/users", getUsers)
 			adminOnly.PUT("/users/:id/role", updateUserRole)
+			adminOnly.DELETE("/users/:id", deleteUser)
 }
 
