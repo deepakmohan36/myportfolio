@@ -263,6 +263,60 @@ func UpdateUserRole(userID int64, newRole string) error {
 	return nil
 }
 
+// DeleteUser removes a user document from Firestore. If the user is an admin,
+// this function ensures they are not the last remaining admin, reusing the
+// same safety semantics as UpdateUserRole.
+func DeleteUser(userID int64) error {
+	ctx := context.Background()
+	col := usersCollection()
+
+	// Find the user document by id field.
+	iter := col.Where("id", "==", userID).Limit(1).Documents(ctx)
+	defer iter.Stop()
+
+	doc, err := iter.Next()
+	if err == iterator.Done {
+		return ErrUserNotFound
+	}
+	if err != nil {
+		return fmt.Errorf("failed to query user by id: %w", err)
+	}
+
+	var data firestoreUserDoc
+	if err := doc.DataTo(&data); err != nil {
+		return fmt.Errorf("failed to decode user document: %w", err)
+	}
+
+	// If this user is currently an admin, ensure they are not the last
+	// remaining admin before deleting.
+	if data.Role == "admin" {
+		adminIter := col.Where("role", "==", "admin").Documents(ctx)
+		defer adminIter.Stop()
+
+		adminCount := 0
+		for {
+			_, err := adminIter.Next()
+			if err == iterator.Done {
+				break
+			}
+			if err != nil {
+				return fmt.Errorf("failed to count admins: %w", err)
+			}
+			adminCount++
+		}
+
+		if adminCount <= 1 {
+			return ErrCannotDemoteLastAdmin
+		}
+	}
+
+	if _, err := doc.Ref.Delete(ctx); err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+
+	return nil
+}
+
 // FindOrCreateUserByEmail finds a user by email (used as username) or creates
 // a new one if it does not exist. This is used for Google login.
 func FindOrCreateUserByEmail(email, googleSub string) (*User, error) {

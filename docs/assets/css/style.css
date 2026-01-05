@@ -1785,6 +1785,7 @@ section {
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(18px);
   overflow: hidden;
+	min-height: 350px;
 }
 
 .auth-modal-content .modal-header {
@@ -1877,7 +1878,18 @@ section {
 
 .auth-modal-content .auth-google-wrapper {
 	  margin-top: 1rem;
-	  margin-bottom: 1.25rem;
+	  margin-bottom: 1.5rem;
+}
+
+/* Subtle vertical rhythm inside the auth modal (works for both index and blog modals) */
+.auth-modal-content #blog-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.auth-modal-content #blog-auth .form-check {
+  margin-top: 0.25rem;
 }
 
 .auth-toggle-signup {

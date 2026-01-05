@@ -80,6 +80,34 @@ func updateUserRole(context *gin.Context) {
 	context.JSON(http.StatusOK, gin.H{"message": "Role updated successfully"})
 }
 
+// deleteUser allows an admin to permanently remove a user account. It is
+// expected to be mounted behind both the Authenticate and RequireAdmin
+// middlewares.
+func deleteUser(context *gin.Context) {
+	userIDParam := context.Param("id")
+	userID, err := strconv.ParseInt(userIDParam, 10, 64)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Invalid user ID"})
+		return
+	}
+
+	if err := models.DeleteUser(userID); err != nil {
+		if errors.Is(err, models.ErrUserNotFound) {
+			context.JSON(http.StatusNotFound, gin.H{"message": "User not found"})
+			return
+		}
+		if errors.Is(err, models.ErrCannotDemoteLastAdmin) {
+			context.JSON(http.StatusBadRequest, gin.H{"message": "Cannot delete the last admin user"})
+			return
+		}
+
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not delete user", "error": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+}
+
 func login(context *gin.Context) {
 	var payload struct {
 		Username   string `json:"username" binding:"required"`
