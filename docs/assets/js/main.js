@@ -790,35 +790,76 @@
 								        if (!comment) return;
 								        const li = document.createElement('li');
 								        li.className = 'blog-post-comment';
-
+								        const commentId = comment.id || comment.ID || comment.commentId;
+								        if (commentId != null) {
+								          li.dataset.commentId = String(commentId);
+								        }
+								        const commentUserId = comment.user_id || comment.userId || comment.UserID;
+								        if (commentUserId != null) {
+								          li.dataset.userId = String(commentUserId);
+								        }
+									
 								        const header = document.createElement('div');
 								        header.className = 'blog-post-comment-header d-flex justify-content-between align-items-baseline';
-
+									
 								        const authorEl = document.createElement('span');
 								        authorEl.className = 'blog-post-comment-author fw-semibold';
-						const rawAuthor = comment.author_name || comment.authorName || '';
-						const displayName = deriveDisplayNameFromIdentifier(rawAuthor) || rawAuthor || 'Anonymous';
-						authorEl.textContent = displayName;
-
+										const rawAuthor = comment.author_name || comment.authorName || '';
+										const displayName = deriveDisplayNameFromIdentifier(rawAuthor) || rawAuthor || 'Anonymous';
+										authorEl.textContent = displayName;
+									
 								        const metaEl = document.createElement('span');
 								        metaEl.className = 'blog-post-comment-meta small text-muted';
 								        const createdRaw = comment.created_at || comment.createdAt || comment.CreatedAt;
+								        const updatedRaw = comment.updated_at || comment.updatedAt || comment.UpdatedAt;
+								        const metaParts = [];
 								        if (createdRaw) {
 								          const createdDate = new Date(createdRaw);
 								          if (!Number.isNaN(createdDate.getTime())) {
-								            metaEl.textContent = formatPrettyDate(createdDate);
+								            metaParts.push(formatPrettyDate(createdDate));
 								          }
 								        }
-
+								        if (updatedRaw && updatedRaw !== createdRaw) {
+								          metaParts.push('edited');
+								        }
+								        if (metaParts.length) {
+								          metaEl.textContent = metaParts.join(' · ');
+								        }
+									
 								        header.appendChild(authorEl);
 								        header.appendChild(metaEl);
-
+									
 								        const contentEl = document.createElement('p');
 								        contentEl.className = 'blog-post-comment-content mb-0';
 								        contentEl.textContent = comment.content || '';
-
+									
 								        li.appendChild(header);
 								        li.appendChild(contentEl);
+									
+								        const actionsEl = document.createElement('div');
+								        actionsEl.className = 'blog-post-comment-actions mt-1 small';
+								        const currentUserId = currentUser && currentUser.id;
+								        const isAdmin = !!(currentUser && currentUser.role === 'admin');
+								        const isOwner = currentUserId != null && commentUserId != null && String(commentUserId) === String(currentUserId);
+								        const canEdit = isOwner;
+								        const canDelete = isOwner || isAdmin;
+								        if (canEdit) {
+								          const editBtn = document.createElement('button');
+								          editBtn.type = 'button';
+								          editBtn.className = 'btn btn-link btn-sm p-0 me-2 blog-comment-edit-btn';
+								          editBtn.textContent = 'Edit';
+								          actionsEl.appendChild(editBtn);
+								        }
+								        if (canDelete) {
+								          const deleteBtn = document.createElement('button');
+								          deleteBtn.type = 'button';
+								          deleteBtn.className = 'btn btn-link btn-sm p-0 text-danger blog-comment-delete-btn';
+								          deleteBtn.textContent = 'Delete';
+								          actionsEl.appendChild(deleteBtn);
+								        }
+								        if (actionsEl.childNodes.length > 0) {
+								          li.appendChild(actionsEl);
+								        }
 								        postReaderCommentsList.appendChild(li);
 								      });
 								    }
@@ -850,6 +891,139 @@
 								      // We keep the comments area silent on failure to avoid
 								      // overwhelming the reader. Main blog status remains available
 								      // for error messaging.
+								    }
+								  };
+								
+								  const handlePostReaderCommentsClick = async (event) => {
+								    const target = event.target;
+								    if (!(target instanceof HTMLElement)) return;
+								
+								    const deleteBtn = target.closest('.blog-comment-delete-btn');
+								    const editBtn = target.closest('.blog-comment-edit-btn');
+								    const saveBtn = target.closest('.blog-comment-edit-save');
+								    const cancelBtn = target.closest('.blog-comment-edit-cancel');
+								
+								    if (!deleteBtn && !editBtn && !saveBtn && !cancelBtn) return;
+								
+								    if (!currentUser || !authToken) {
+								      showBlogStatus('Please log in to manage your comments.', 'error');
+								      return;
+								    }
+								
+								    const li = target.closest('.blog-post-comment');
+								    if (!li) return;
+								    const commentId = li.dataset.commentId;
+								    if (!commentId) return;
+								
+								    const postId = postReaderCurrentPostId;
+								    if (!postId) return;
+								    const numericPostId = Number(postId);
+								    if (!Number.isFinite(numericPostId) || numericPostId <= 0) return;
+								
+								    // Handle delete
+								    if (deleteBtn) {
+								      if (!window.confirm('Delete this comment?')) return;
+								      try {
+								        await apiRequest(`/posts/${numericPostId}/comments/${commentId}`, {
+								          method: 'DELETE',
+								        });
+								        const idStr = String(commentId);
+								        const arr = Array.isArray(postReaderComments) ? postReaderComments : [];
+								        postReaderComments = arr.filter((c) => {
+								          if (!c) return false;
+								          const cid = c.id || c.ID || c.commentId;
+								          return String(cid) !== idStr;
+								        });
+								        renderPostReaderComments();
+								      } catch (err) {
+								        console.error(err);
+								        showBlogStatus(err.message || 'Could not delete comment.', 'error');
+								      }
+								      return;
+								    }
+								
+								    const contentEl = li.querySelector('.blog-post-comment-content');
+								    if (!(contentEl instanceof HTMLElement)) return;
+								
+								    // Start inline edit
+								    if (editBtn) {
+								      if (li.dataset.editing === 'true') return;
+								
+								      li.dataset.editing = 'true';
+								
+								      const originalText = contentEl.textContent || '';
+								      const textarea = document.createElement('textarea');
+								      textarea.className = 'form-control form-control-sm blog-comment-edit-input mt-2';
+								      textarea.value = originalText;
+								
+								      const controls = document.createElement('div');
+								      controls.className = 'blog-comment-edit-controls mt-2';
+								
+								      const saveButton = document.createElement('button');
+								      saveButton.type = 'button';
+								      saveButton.className = 'btn btn-primary btn-sm me-2 blog-comment-edit-save';
+								      saveButton.textContent = 'Save';
+								
+								      const cancelButton = document.createElement('button');
+								      cancelButton.type = 'button';
+								      cancelButton.className = 'btn btn-outline-secondary btn-sm blog-comment-edit-cancel';
+								      cancelButton.textContent = 'Cancel';
+								
+								      controls.appendChild(saveButton);
+								      controls.appendChild(cancelButton);
+								
+								      li.appendChild(textarea);
+								      li.appendChild(controls);
+								
+								      return;
+								    }
+								
+								    // Cancel edit
+								    if (cancelBtn) {
+								      li.dataset.editing = '';
+								      const textarea = li.querySelector('.blog-comment-edit-input');
+								      const controls = li.querySelector('.blog-comment-edit-controls');
+								      if (textarea && textarea.parentNode) {
+								        textarea.parentNode.removeChild(textarea);
+								      }
+								      if (controls && controls.parentNode) {
+								        controls.parentNode.removeChild(controls);
+								      }
+								      return;
+								    }
+								
+								    // Save edit
+								    if (saveBtn) {
+								      const textarea = li.querySelector('.blog-comment-edit-input');
+								      if (!(textarea instanceof HTMLTextAreaElement)) return;
+								      const newContent = (textarea.value || '').trim();
+								      if (!newContent) {
+								        return;
+								      }
+								
+								      try {
+								        const data = await apiRequest(`/posts/${numericPostId}/comments/${commentId}`, {
+								          method: 'PUT',
+								          headers: { 'Content-Type': 'application/json' },
+								          body: JSON.stringify({ content: newContent }),
+								        });
+								        const updated = data && (data.comment || data.Comment);
+								        if (updated) {
+								          const idStr = String(commentId);
+								          const arr = Array.isArray(postReaderComments) ? postReaderComments : [];
+								          postReaderComments = arr.map((c) => {
+								            if (!c) return c;
+								            const cid = c.id || c.ID || c.commentId;
+								            return String(cid) === idStr ? updated : c;
+								          });
+								          renderPostReaderComments();
+								        } else {
+								          await loadPostComments(postId);
+								        }
+								      } catch (err) {
+								        console.error(err);
+								        showBlogStatus(err.message || 'Could not update comment.', 'error');
+								      }
 								    }
 								  };
 						
@@ -974,7 +1148,10 @@
 								    postReaderCommentsMoreBtn = postReaderOverlay.querySelector('.blog-post-reader-comments-more');
 								    postReaderCommentForm = postReaderOverlay.querySelector('.blog-post-reader-comment-form');
 								    postReaderCommentInput = postReaderOverlay.querySelector('.blog-post-reader-comment-input');
-								    postReaderCommentsTitle = postReaderOverlay.querySelector('.blog-post-reader-comments-title');
+									    postReaderCommentsTitle = postReaderOverlay.querySelector('.blog-post-reader-comments-title');
+									    if (postReaderCommentsList) {
+									      postReaderCommentsList.addEventListener('click', handlePostReaderCommentsClick);
+									    }
 						
     const closeBtn = postReaderOverlay.querySelector('.blog-post-reader-close');
     if (closeBtn) {

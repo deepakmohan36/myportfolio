@@ -310,6 +310,12 @@ func DeleteUser(userID int64) error {
 		}
 	}
 
+	// Anonymize any comments authored by this user so their content remains
+	// but no longer links back to their account.
+	if err := AnonymizeCommentsForUser(userID); err != nil {
+		return fmt.Errorf("failed to anonymize user comments: %w", err)
+	}
+
 	if _, err := doc.Ref.Delete(ctx); err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
