@@ -205,3 +205,33 @@ func DeleteComment(id string) error {
 	return nil
 }
 
+// AnonymizeCommentsForUser replaces the user reference on all comments owned by
+// the given user with a generic "Deleted user" label while keeping the
+// comment content intact.
+func AnonymizeCommentsForUser(userID int64) error {
+	ctx := context.Background()
+	col := postCommentsCollection()
+
+	iter := col.Where("user_id", "==", userID).Documents(ctx)
+	defer iter.Stop()
+
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to iterate user comments: %w", err)
+		}
+
+		if _, err := doc.Ref.Update(ctx, []firestore.Update{
+			{Path: "user_id", Value: int64(0)},
+			{Path: "author_name", Value: "Deleted user"},
+		}); err != nil {
+			return fmt.Errorf("failed to anonymize comment: %w", err)
+		}
+	}
+
+	return nil
+}
+
