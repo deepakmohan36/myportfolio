@@ -736,15 +736,18 @@
 								  let postReaderCommentsMoreBtn = null;
 								  let postReaderCommentForm = null;
 								  let postReaderCommentInput = null;
-								  let postReaderCommentsTitle = null;
-								  let postReaderCurrentPostId = null;
-								  let postReaderComments = [];
-								  let postReaderShowAllComments = false;
+									  let postReaderCommentsTitle = null;
+									  let postReaderCommentsToggle = null;
+									  let postReaderCurrentPostId = null;
+									  let postReaderComments = [];
+									  let postReaderShowAllComments = false;
+									  let postReaderCommentsExpanded = false;
 								  const POST_READER_INITIAL_COMMENTS = 10;
 
 								  const resetPostReaderCommentsState = () => {
 								    postReaderComments = [];
 								    postReaderShowAllComments = false;
+								    postReaderCommentsExpanded = false;
 								    if (postReaderCommentsList) {
 								      postReaderCommentsList.innerHTML = '';
 								    }
@@ -805,7 +808,12 @@
 								        const authorEl = document.createElement('span');
 								        authorEl.className = 'blog-post-comment-author fw-semibold';
 										const rawAuthor = comment.author_name || comment.authorName || '';
-										const displayName = deriveDisplayNameFromIdentifier(rawAuthor) || rawAuthor || 'Anonymous';
+										let displayName;
+										if (typeof rawAuthor === 'string' && rawAuthor.trim().toLowerCase() === 'deleted user') {
+										  displayName = 'Anonymous';
+										} else {
+										  displayName = deriveDisplayNameFromIdentifier(rawAuthor) || rawAuthor || 'Anonymous';
+										}
 										authorEl.textContent = displayName;
 									
 								        const metaEl = document.createElement('span');
@@ -837,7 +845,7 @@
 								        li.appendChild(contentEl);
 									
 								        const actionsEl = document.createElement('div');
-								        actionsEl.className = 'blog-post-comment-actions mt-1 small';
+								        actionsEl.className = 'blog-post-comment-actions small';
 								        const currentUserId = currentUser && currentUser.id;
 								        const isAdmin = !!(currentUser && currentUser.role === 'admin');
 								        const isOwner = currentUserId != null && commentUserId != null && String(commentUserId) === String(currentUserId);
@@ -846,15 +854,21 @@
 								        if (canEdit) {
 								          const editBtn = document.createElement('button');
 								          editBtn.type = 'button';
-								          editBtn.className = 'btn btn-link btn-sm p-0 me-2 blog-comment-edit-btn';
-								          editBtn.textContent = 'Edit';
+								          editBtn.className = 'btn btn-sm btn-outline-secondary blog-comment-edit-btn blog-reaction-btn';
+								          editBtn.setAttribute('aria-label', 'Edit comment');
+								          const editIcon = document.createElement('i');
+								          editIcon.className = 'bi bi-pencil-square';
+								          editBtn.appendChild(editIcon);
 								          actionsEl.appendChild(editBtn);
 								        }
 								        if (canDelete) {
 								          const deleteBtn = document.createElement('button');
 								          deleteBtn.type = 'button';
-								          deleteBtn.className = 'btn btn-link btn-sm p-0 text-danger blog-comment-delete-btn';
-								          deleteBtn.textContent = 'Delete';
+								          deleteBtn.className = 'btn btn-sm btn-outline-danger blog-comment-delete-btn blog-reaction-btn';
+								          deleteBtn.setAttribute('aria-label', 'Delete comment');
+								          const deleteIcon = document.createElement('i');
+								          deleteIcon.className = 'bi bi-trash';
+								          deleteBtn.appendChild(deleteIcon);
 								          actionsEl.appendChild(deleteBtn);
 								        }
 								        if (actionsEl.childNodes.length > 0) {
@@ -865,6 +879,10 @@
 								    }
 
 								    if (!postReaderCommentsMoreBtn) return;
+								    if (!postReaderCommentsExpanded) {
+								      postReaderCommentsMoreBtn.classList.add('d-none');
+								      return;
+								    }
 								    if (total > POST_READER_INITIAL_COMMENTS) {
 								      postReaderCommentsMoreBtn.classList.remove('d-none');
 								      if (postReaderShowAllComments) {
@@ -1107,38 +1125,41 @@
 							      postReaderOverlay = document.createElement('div');
 							      postReaderOverlay.id = 'post-reader-overlay';
 								      postReaderOverlay.className = 'blog-post-reader-overlay d-none';
-									      postReaderOverlay.innerHTML = `
-									        <div class="blog-post-reader-dialog" role="dialog" aria-modal="true">
-									          <div class="blog-post-reader-header d-flex justify-content-end mb-2">
-									            <button type="button" class="btn-close blog-post-reader-close" aria-label="Close"></button>
-									          </div>
-									          <div class="blog-post-reader-body"></div>
-									          <div class="blog-post-reader-reactions mt-3 d-flex align-items-center"></div>
-									          <div class="blog-post-reader-comments mt-4">
-									            <div class="d-flex justify-content-between align-items-baseline mb-2">
-									              <h6 class="blog-post-reader-comments-title mb-0">Comments</h6>
-									            </div>
-									            <ul class="blog-post-reader-comments-list list-unstyled mb-2"></ul>
-									            <button type="button" class="btn btn-link btn-sm p-0 blog-post-reader-comments-more d-none"></button>
-									            <form class="blog-post-reader-comment-form mt-3">
-									              <label class="visually-hidden" for="blog-post-reader-comment-input">Add a comment</label>
-									              <div class="input-group input-group-sm">
-									                <textarea
-									                  id="blog-post-reader-comment-input"
-									                  class="form-control blog-post-reader-comment-input"
-									                  rows="2"
-									                  placeholder="Add a comment..."
-									                  maxlength="2000"
-									                ></textarea>
-									                <button
-									                  type="submit"
-									                  class="btn btn-primary blog-post-reader-comment-submit"
-									                >Post</button>
-									              </div>
-									            </form>
-									          </div>
-									        </div>
-									      `;
+										      postReaderOverlay.innerHTML = `
+										        <div class="blog-post-reader-dialog" role="dialog" aria-modal="true">
+										          <div class="blog-post-reader-header d-flex justify-content-end mb-2">
+										            <button type="button" class="btn-close blog-post-reader-close" aria-label="Close"></button>
+										          </div>
+										          <div class="blog-post-reader-body"></div>
+										          <div class="blog-post-reader-footer mt-3 d-flex align-items-center justify-content-between">
+										            <div class="blog-post-reader-reactions d-flex align-items-center"></div>
+										            <button type="button" class="btn btn-link btn-sm px-2 blog-post-reader-comments-toggle">
+										              <i class="bi bi-chat-left-text me-1"></i>
+										              <span class="blog-post-reader-comments-title">Comments</span>
+										            </button>
+										          </div>
+										          <div class="blog-post-reader-comments mt-3">
+										            <ul class="blog-post-reader-comments-list list-unstyled mb-2 d-none"></ul>
+										            <button type="button" class="btn btn-link btn-sm p-0 blog-post-reader-comments-more d-none"></button>
+										            <form class="blog-post-reader-comment-form mt-3">
+											              <label class="visually-hidden" for="blog-post-reader-comment-input">Add a comment</label>
+											              <div class="input-group input-group-sm">
+											                <textarea
+											                  id="blog-post-reader-comment-input"
+											                  class="form-control blog-post-reader-comment-input"
+											                  rows="2"
+											                  placeholder="Add a comment..."
+											                  maxlength="2000"
+											                ></textarea>
+											                <button
+											                  type="submit"
+											                  class="btn btn-primary blog-post-reader-comment-submit"
+											                >Post</button>
+											              </div>
+											            </form>
+										          </div>
+										        </div>
+										      `;
 							      document.body.appendChild(postReaderOverlay);
 							    }
 							    postReaderDialog = postReaderOverlay.querySelector('.blog-post-reader-dialog');
@@ -1149,6 +1170,7 @@
 								    postReaderCommentForm = postReaderOverlay.querySelector('.blog-post-reader-comment-form');
 								    postReaderCommentInput = postReaderOverlay.querySelector('.blog-post-reader-comment-input');
 									    postReaderCommentsTitle = postReaderOverlay.querySelector('.blog-post-reader-comments-title');
+									    postReaderCommentsToggle = postReaderOverlay.querySelector('.blog-post-reader-comments-toggle');
 									    if (postReaderCommentsList) {
 									      postReaderCommentsList.addEventListener('click', handlePostReaderCommentsClick);
 									    }
@@ -1183,6 +1205,15 @@
 								        if (postReaderDialog) {
 								          postReaderDialog.scrollTop = postReaderDialog.scrollHeight;
 								        }
+								      });
+								    }
+
+								    if (postReaderCommentsToggle && postReaderCommentsList) {
+								      postReaderCommentsToggle.addEventListener('click', (event) => {
+								        event.preventDefault();
+								        postReaderCommentsExpanded = !postReaderCommentsExpanded;
+								        postReaderCommentsList.classList.toggle('d-none', !postReaderCommentsExpanded);
+								        renderPostReaderComments();
 								      });
 								    }
 
