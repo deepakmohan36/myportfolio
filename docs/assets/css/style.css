@@ -1992,10 +1992,22 @@ section {
 		  font-size: 0.78rem;
 }
 
-/* Slightly narrower search in the top auth bar */
-.auth-bar .blog-search-group {
-			  max-width: 420px;
-}
+	/* Slightly narrower search in the top auth bar (generic cap) */
+	.auth-bar .blog-search-group {
+				  max-width: 540px;
+	}
+
+	/* Desktop only: make the auth-bar search box wide enough so the helper
+	   text fits comfortably. Mobile layouts are handled in the blog-page
+	   @media (max-width: 575.98px) block above. */
+	@media (min-width: 576px) {
+		.blog-page .auth-bar .blog-search-group {
+			/* Approximate the single-line width of
+			   "Search posts by title, category, or content" */
+			min-width: 340px;
+			max-width: 340px;
+		}
+	}
 
 .blog-app {
   border-radius: 18px;
@@ -2522,6 +2534,41 @@ section {
 	color: #111827;
 }
 
+	/* Footer row in the reader: reactions on the left, comments toggle on the right */
+	.blog-post-reader-footer {
+		margin-top: 1.2rem;
+	}
+
+	.blog-post-reader-footer .blog-post-reader-reactions {
+		display: flex;
+		align-items: center;
+	}
+
+	.blog-post-reader-comments-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.1rem 0.4rem;
+		text-decoration: none;
+	}
+
+	.dark-theme .blog-post-reader-comments-toggle {
+		color: #9ca3af;
+	}
+
+	.light-theme .blog-post-reader-comments-toggle {
+		color: #4b5563;
+	}
+
+	.blog-post-reader-comments-toggle .bi {
+		font-size: 0.9rem;
+		opacity: 0.8;
+	}
+
+	.blog-post-reader-comments-toggle:hover .bi {
+		opacity: 1;
+	}
+
 	.blog-post-reader-comments {
 		margin-top: 1.5rem;
 		padding-top: 1rem;
@@ -2555,13 +2602,23 @@ section {
 		gap: 0.75rem;
 	}
 
-		.blog-post-comment {
-			font-size: 0.86rem;
-			line-height: 1.5;
-			padding: 0.5rem 0.6rem;
-			border-radius: 0.5rem;
-			background: rgba(15, 23, 42, 0.4);
-		}
+				.blog-post-comment {
+					font-size: 0.86rem;
+					line-height: 1.45;
+					padding: 0.5rem 0.6rem 0.8rem;
+					border-radius: 0.5rem;
+					background: rgba(15, 23, 42, 0.4);
+					position: relative;
+				}
+
+				.blog-post-comment-actions {
+					position: absolute;
+					right: 0.4rem;
+					bottom: 0.25rem;
+					display: flex;
+					gap: 0.2rem;
+					align-items: center;
+				}
 
 		/* Dark theme: make existing comments stand out without being too bright */
 		.dark-theme .blog-post-reader-dialog .blog-post-comment {
@@ -2580,9 +2637,10 @@ section {
 		margin-bottom: 0.15rem;
 	}
 
-	.blog-post-comment-author {
-			font-size: 0.82rem;
-		}
+		.blog-post-comment-author {
+				font-size: 0.82rem;
+				font-weight: 700;
+			}
 
 		/* Improve readability of author name and date in dark mode */
 		.dark-theme .blog-post-comment-author {
@@ -2604,9 +2662,15 @@ section {
 		white-space: pre-wrap;
 	}
 
-	.blog-post-comment-empty {
-		font-size: 0.8rem;
-	}
+		.blog-post-comment-empty {
+			font-size: 0.8rem;
+		}
+
+		/* In dark mode, make the empty-state hint readable but not pure white.
+		   Use the same soft near-white used elsewhere in the dark theme. */
+		.dark-theme .blog-post-reader-dialog .blog-post-comment-empty {
+			color: #e5e7eb !important;
+		}
 
 		.blog-post-reader-comments-more {
 			font-size: 0.8rem;
