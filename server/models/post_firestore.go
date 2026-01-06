@@ -31,6 +31,7 @@ type Post struct {
 	AuthorID      int64     `json:"author_id"`
 	LikesCount    int64     `json:"likes_count"`
 	DislikesCount int64     `json:"dislikes_count"`
+	CommentsCount int64     `json:"comments_count"`
 }
 
 // firestorePostDoc is the Firestore representation of a Post document.
@@ -47,6 +48,7 @@ type firestorePostDoc struct {
 	AuthorID      int64     `firestore:"author_id"`
 	LikesCount    int64     `firestore:"likes_count"`
 	DislikesCount int64     `firestore:"dislikes_count"`
+	CommentsCount int64     `firestore:"comments_count"`
 }
 
 func postsCollection() *firestore.CollectionRef {
@@ -115,6 +117,7 @@ func (p *Post) Save() error {
 		AuthorID:      p.AuthorID,
 		LikesCount:    0,
 		DislikesCount: 0,
+		CommentsCount: 0,
 	}
 
 	if _, err := postsCollection().Doc(strconv.FormatInt(nextID, 10)).Set(ctx, doc); err != nil {
@@ -124,6 +127,7 @@ func (p *Post) Save() error {
 	p.ID = nextID
 	p.LikesCount = 0
 	p.DislikesCount = 0
+	p.CommentsCount = 0
 
 	return nil
 }
@@ -161,9 +165,10 @@ func GetAllPosts() ([]Post, error) {
 			Status:        data.Status,
 			CreatedAt:     data.CreatedAt,
 			UpdatedAt:     data.UpdatedAt,
-			AuthorID:      data.AuthorID,
-			LikesCount:    data.LikesCount,
-			DislikesCount: data.DislikesCount,
+				AuthorID:      data.AuthorID,
+				LikesCount:    data.LikesCount,
+				DislikesCount: data.DislikesCount,
+				CommentsCount: data.CommentsCount,
 		})
 	}
 
@@ -200,6 +205,7 @@ func GetPostByID(id int64) (*Post, error) {
 		AuthorID:      data.AuthorID,
 		LikesCount:    data.LikesCount,
 		DislikesCount: data.DislikesCount,
+		CommentsCount: data.CommentsCount,
 	}
 
 	return post, nil

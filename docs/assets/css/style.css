@@ -292,7 +292,16 @@ h6 {
 
 /* Special, welcoming font treatment for the blog welcome message */
 #blog-current-user {
-	  font-family: "Allura", "Satisfy", "Great Vibes", "Poppins", cursive, sans-serif;
+		  font-family: "Allura", "Satisfy", "Great Vibes", "Poppins", cursive, sans-serif;
+}
+
+/* Desktop-only sizing for the blog welcome hero message on the blog page.
+   Keep the smaller, inherited sizing on mobile and on the homepage embed. */
+@media (min-width: 768px) {
+	.blog-page #blog-current-user {
+		font-size: 2.8rem;
+		line-height: 1.4;
+	}
 }
 
 @media (max-width: 768px) {
@@ -1148,7 +1157,7 @@ section {
 }
 
 /*--------------------------------------------------------------
-# Custom Visual Refresh - Deepak Mohan (dark theme scoped)
+# Custom Visual Refresh - Deepak Mohan (dark & light themes)
 --------------------------------------------------------------*/
 .dark-theme {
   background: radial-gradient(circle at top, #0b1020 0, #02040a 45%, #050b18 100%);
@@ -1161,6 +1170,22 @@ section {
 .dark-theme p,
 .dark-theme li {
   color: #cfd3f0;
+}
+
+/* Light theme: use a soft, uniform background that matches the
+   section-bg color so there is no stark white band at the top
+   behind the site brand, search box, or profile controls. */
+.light-theme {
+  background: #f5f8fd; /* same base as .section-bg */
+  color: #020617;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.light-theme,
+.light-theme p,
+.light-theme li {
+  color: #020617;
 }
 
 .dark-theme section {
@@ -1385,69 +1410,52 @@ section {
 # Theme toggle & scroll progress
 --------------------------------------------------------------*/
 .site-brand {
-  position: fixed;
-  top: 18px;
-  left: 18px;
-  height: 42px;
-  padding: 0 1.1rem;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  background: rgba(15, 23, 42, 0.9);
-  color: #e5e7f5;
-  font-family: "Merriweather", "Georgia", serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.82);
-  backdrop-filter: blur(18px);
-  transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease,
-    border-color 0.25s ease, color 0.25s ease;
+	position: fixed;
+	top: 18px;
+	left: 18px;
+	height: 42px;
+	/* No pill/background/border: just text aligned with the site theme */
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #e5e7f5;
+	font-family: "Merriweather", "Georgia", serif;
+	font-size: 1rem;
+	font-weight: 600;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	text-decoration: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-start;
+	z-index: 10000;
 }
 
-.site-brand-root,
+/* Show only the primary domain label so it reads "deepakmohan.in" */
+.site-brand-root {
+	display: inline-block;
+}
+
 .site-brand-separator,
 .site-brand-section {
-  display: inline-block;
-}
-
-.site-brand-separator {
-  margin: 0 0.35rem;
-  opacity: 0.6;
-}
-
-.site-brand-section {
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  font-weight: 500;
-  opacity: 0.9;
+	display: none;
 }
 
 .site-brand:hover,
 .site-brand:focus-visible {
-  background: rgba(15, 23, 42, 0.98);
-  border-color: rgba(148, 163, 184, 0.95);
-  color: #f9fafb;
-  transform: translateY(-1px);
-  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.9);
+	color: #ffffff;
+	text-decoration: underline;
 }
 
+/* Light theme: adjust color to match overall typography on light bg */
 .light-theme .site-brand {
-  background: rgba(255, 255, 255, 0.94);
-  color: #020617;
-  border-color: rgba(148, 163, 184, 0.6);
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.4);
+	color: #020617;
 }
 
 .light-theme .site-brand:hover,
 .light-theme .site-brand:focus-visible {
-  background: #f1f5f9;
-  color: #020617;
+	color: #020617;
+	text-decoration: underline;
 }
 
 .theme-toggle-floating {
@@ -1549,11 +1557,9 @@ section {
 		}
 
 			.blog-page .site-brand {
-				font-size: 0.8rem;
-				letter-spacing: 0.14em;
-				padding: 0 1.6rem;
-				border-width: 2px;
-			}
+					font-size: 0.9rem;
+					letter-spacing: 0.16em;
+				}
 
 		.blog-page .site-brand-section {
 			font-size: 0.7rem;
@@ -2055,9 +2061,9 @@ section {
 							}
 
 #blog-current-user .blog-hero-subtitle {
-	font-size: 0.9rem;
+	font-size: 1.4rem;
 	line-height: 1.6;
-	max-width: 34rem;
+	max-width: 44rem;
 }
 
 .dark-theme #blog-current-user {
@@ -2089,16 +2095,17 @@ section {
   font-size: 0.8rem;
 }
 
-.blog-posts .blog-post-item {
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  margin-bottom: 1rem;
-  padding: 0.9rem 1rem 0.85rem;
-  background:
-    radial-gradient(circle at top left, rgba(20, 192, 221, 0.12), transparent 55%),
-    radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.18), transparent 60%),
-    rgba(15, 23, 42, 0.9);
-}
+	.blog-posts .blog-post-item {
+	  border-radius: 14px;
+	  border: 1px solid rgba(148, 163, 184, 0.3);
+	  margin-bottom: 1rem;
+	  padding: .9rem 1rem 0.2rem;
+	  cursor: pointer; /* Cards are clickable: show hand cursor */
+	  background:
+	    radial-gradient(circle at top left, rgba(20, 192, 221, 0.12), transparent 55%),
+	    radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.18), transparent 60%),
+	    rgba(15, 23, 42, 0.9);
+	}
 
 .dark-theme .blog-posts .blog-post-item {
   border-color: rgba(148, 163, 184, 0.35);
@@ -2112,8 +2119,8 @@ section {
   border-color: rgba(15, 23, 42, 0.06);
 }
 
-		/* Modern layout: tall, narrow featured-style cards */
-			.blog-posts.blog-posts-modern {
+			/* Grid layout: tall, narrow featured-style cards */
+				.blog-posts.blog-posts-grid {
 			  display: flex;
 			  flex-wrap: wrap;
 			  flex-direction: row;
@@ -2123,7 +2130,7 @@ section {
 			  justify-content: flex-start;
 			}
 
-			.blog-posts.blog-posts-modern .blog-post-item {
+				.blog-posts.blog-posts-grid .blog-post-item {
 			  position: relative;
 			  flex: 1 1 100%;
 			  max-width: 100%;
@@ -2134,20 +2141,21 @@ section {
 			  padding: 170px 1.4rem 1.1rem;
 			  border-radius: 26px;
 			  overflow: hidden;
-			  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.65);
+				  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.65);
+					  cursor: pointer; /* Grid layout cards are also clickable */
 			  display: flex;
 			  flex-direction: column;
 			}
 
 		@media (min-width: 768px) {
-		  .blog-posts.blog-posts-modern .blog-post-item {
+		  .blog-posts.blog-posts-grid .blog-post-item {
 		    flex: 1 1 calc(50% - 1.5rem);
 		    max-width: calc(50% - 1.5rem);
 		  }
 		}
 
 			@media (min-width: 992px) {
-			  .blog-posts.blog-posts-modern .blog-post-item {
+			  .blog-posts.blog-posts-grid .blog-post-item {
 			    /* Cap at 3 columns per row on larger screens */
 			    flex: 1 1 calc(33.333% - 1.5rem);
 			    max-width: calc(33.333% - 1.5rem);
@@ -2156,13 +2164,13 @@ section {
 			
 			/* On very wide screens, keep the same 3-column layout (no 4th column) */
 			@media (min-width: 1400px) {
-			  .blog-posts.blog-posts-modern .blog-post-item {
+			  .blog-posts.blog-posts-grid .blog-post-item {
 			    flex: 1 1 calc(33.333% - 1.5rem);
 			    max-width: calc(33.333% - 1.5rem);
 			  }
 			}
 
-	.dark-theme .blog-posts.blog-posts-modern .blog-post-item {
+		.dark-theme .blog-posts.blog-posts-grid .blog-post-item {
 	  background:
 	    radial-gradient(circle at top left, rgba(56, 189, 248, 0.3), transparent 55%),
 	    radial-gradient(circle at bottom right, rgba(129, 140, 248, 0.35), transparent 60%),
@@ -2170,7 +2178,7 @@ section {
 	  border-color: transparent;
 	}
 
-	.light-theme .blog-posts.blog-posts-modern .blog-post-item {
+		.light-theme .blog-posts.blog-posts-grid .blog-post-item {
 	  background:
 	    radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 55%),
 	    radial-gradient(circle at bottom right, rgba(96, 165, 250, 0.16), transparent 60%),
@@ -2179,7 +2187,7 @@ section {
 	  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
 	}
 
-			.blog-posts.blog-posts-modern .blog-post-item::before {
+				.blog-posts.blog-posts-grid .blog-post-item::before {
 			  content: '';
 			  position: absolute;
 			  top: 0;
@@ -2195,11 +2203,11 @@ section {
 			  opacity: 0.9;
 			}
 
-		.light-theme .blog-posts.blog-posts-modern .blog-post-item::before {
-		  opacity: 0.88;
-		}
+			.light-theme .blog-posts.blog-posts-grid .blog-post-item::before {
+			  opacity: 0.88;
+			}
 
-			.blog-posts.blog-posts-modern .blog-post-cover-wrapper {
+				.blog-posts.blog-posts-grid .blog-post-cover-wrapper {
 			  position: absolute;
 			  /* Cover matches the 150px header height and extends into the
 			     horizontal padding so it reaches the true card edges. */
@@ -2211,7 +2219,7 @@ section {
 			  overflow: hidden;
 			}
 
-			.blog-posts.blog-posts-modern .blog-post-cover {
+				.blog-posts.blog-posts-grid .blog-post-cover {
 			  display: block;
 			  width: 100%;
 			  height: 100%;
@@ -2227,35 +2235,35 @@ section {
 			/* Example of per-cover focal tweaks using the cover key on the item.
 			   If a particular image still shows too much background on one side,
 			   we can shift its focal point without affecting the others, e.g.:
-			   .blog-posts.blog-posts-modern .blog-post-item[data-cover-key="cover-10"] .blog-post-cover {
+			   .blog-posts.blog-posts-grid .blog-post-item[data-cover-key="cover-10"] .blog-post-cover {
 			     object-position: right center;
 			   }
 			*/
 
-		.blog-posts.blog-posts-modern .blog-post-title {
+			.blog-posts.blog-posts-grid .blog-post-title {
 		  font-size: 1.1rem;
 		  margin-bottom: 0.15rem;
 		}
 		
-		/* Slightly tighter spacing now that Modern cards have no description */
-		.blog-posts.blog-posts-modern .blog-post-content {
+			/* Slightly tighter spacing now that grid cards have no description */
+			.blog-posts.blog-posts-grid .blog-post-content {
 		  margin-bottom: 0.5rem;
 		}
 		
-		.blog-posts.blog-posts-modern .blog-post-footer {
+			.blog-posts.blog-posts-grid .blog-post-footer {
 			  /* Pin the footer (date + category + line) to the bottom of the
-			     modern card regardless of title length. Use !important so this
+				     grid card regardless of title length. Use !important so this
 			     wins over the generic .blog-post-footer rule defined later. */
 			  margin-top: auto !important;
 		  padding-top: 0.45rem;
 		  border-top: 1px solid rgba(148, 163, 184, 0.35);
 		}
 
-	.dark-theme .blog-posts.blog-posts-modern .blog-post-footer {
+		.dark-theme .blog-posts.blog-posts-grid .blog-post-footer {
 	  border-color: rgba(148, 163, 184, 0.45);
 	}
 
-	.blog-posts.blog-posts-modern .blog-post-item small.text-muted {
+		.blog-posts.blog-posts-grid .blog-post-item small.text-muted {
 	  text-transform: none;
 	  letter-spacing: 0.01em;
 	}
@@ -2381,6 +2389,11 @@ section {
   font-weight: 600;
 }
 
+	/* Slightly larger titles only in the classic list layout (non-grid). */
+	.blog-posts:not(.blog-posts-grid) .blog-post-item .blog-post-title {
+	font-size: 1.12rem;
+}
+
 .dark-theme .blog-post-title {
 	  color: #f9fafb;
 }
@@ -2439,7 +2452,8 @@ section {
 }
 
 .blog-reaction-btn .blog-like-count,
-.blog-reaction-btn .blog-dislike-count {
+.blog-reaction-btn .blog-dislike-count,
+.blog-reaction-btn .blog-comment-count {
 	margin-left: 0.15rem;
 }
 
