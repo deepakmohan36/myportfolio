@@ -542,12 +542,14 @@
 			    statusEl.classList.add('alert', alertClass);
 			  };
 
-										  let allPosts = [];
-										  let activeCategoryFilter = '';
-										  let editingPostId = null;
-										  let currentPostsPage = 1;
-										  let totalPostsPages = 1;
-										  const POSTS_PER_PAGE = 10;
+								  let allPosts = [];
+								  let activeCategoryFilter = '';
+								  let editingPostId = null;
+								  let currentPostsPage = 1;
+								  let totalPostsPages = 1;
+								  // Tracks whether we've successfully rendered posts at least once on this page.
+								  let blogPostsInitialized = false;
+									  const POSTS_PER_PAGE = 10;
 								  let currentPostsLayout = 'grid'; // 'list' | 'grid'
 							  let currentPostsSortField = null; // 'title' | 'category' | 'created_at'
 							  let currentPostsSortDirection = 'asc'; // 'asc' | 'desc'
@@ -1393,6 +1395,25 @@
 								      postReaderDialog.focus();
 								    }
 								  };
+
+								  // When a user clicks the comment count from the list layout, open the
+								  // reader and jump straight to the comments section so they can read or
+								  // add a comment without extra scrolling.
+								  const focusPostReaderComments = () => {
+								    if (!postReaderOverlay || !postReaderCommentsList) return;
+								
+								    // Ensure the comments list is expanded, mirroring the behaviour of
+								    // clicking the comments toggle inside the reader.
+								    postReaderCommentsExpanded = true;
+								    postReaderCommentsList.classList.remove('d-none');
+								    renderPostReaderComments();
+								
+								    // Scroll to the bottom of the dialog, where the comments block and
+								    // comment form live.
+								    if (postReaderDialog) {
+								      postReaderDialog.scrollTop = postReaderDialog.scrollHeight;
+								    }
+								  };
 						
 				  const applyPostFiltersAndRender = () => {
 			    // Start from all posts, then filter, sort, and paginate.
@@ -2004,58 +2025,68 @@
 										const footer = document.createElement('div');
 										footer.className = 'd-flex align-items-center mt-1 blog-post-footer';
 									
-									if (!isGridLayout) {
-										// Reactions: like/dislike controls and counters, plus a read-only
-										// comment count pill, available to all authenticated users.
-										const reactions = document.createElement('div');
-										reactions.className = 'd-flex align-items-center blog-reactions';
-										reactions.dataset.postId = String(post.id);
-
-										const likeBtn = document.createElement('button');
-										likeBtn.type = 'button';
-										likeBtn.className = 'btn btn-sm btn-outline-success blog-like-btn blog-reaction-btn';
-										likeBtn.setAttribute('aria-label', 'Like post');
-										const likeIcon = document.createElement('span');
-										likeIcon.className = 'blog-reaction-icon';
-										likeIcon.textContent = '👍';
-										const likeCount = document.createElement('span');
-										likeCount.className = 'blog-like-count';
-										likeCount.textContent = String(post.likes_count || 0);
-										likeBtn.appendChild(likeIcon);
-										likeBtn.appendChild(likeCount);
-
-										const dislikeBtn = document.createElement('button');
-										dislikeBtn.type = 'button';
-										dislikeBtn.className = 'btn btn-sm btn-outline-danger blog-dislike-btn blog-reaction-btn';
-										dislikeBtn.setAttribute('aria-label', 'Dislike post');
-										const dislikeIcon = document.createElement('span');
-										dislikeIcon.className = 'blog-reaction-icon';
-										dislikeIcon.textContent = '👎';
-										const dislikeCount = document.createElement('span');
-										dislikeCount.className = 'blog-dislike-count';
-										dislikeCount.textContent = String(post.dislikes_count || 0);
-										dislikeBtn.appendChild(dislikeIcon);
-										dislikeBtn.appendChild(dislikeCount);
-
-								const commentBtn = document.createElement('button');
-								commentBtn.type = 'button';
-								commentBtn.className = 'btn btn-sm btn-outline-secondary blog-comment-count-btn blog-reaction-btn';
-								commentBtn.setAttribute('aria-label', 'View comments');
-								const commentIcon = document.createElement('i');
-								commentIcon.className = 'bi bi-chat-left-text blog-reaction-icon';
-								const commentCount = document.createElement('span');
-								commentCount.className = 'blog-comment-count';
-								const rawCommentsCount = post && typeof post.comments_count === 'number' ? post.comments_count : 0;
-								commentCount.textContent = String(rawCommentsCount || 0);
-								commentBtn.appendChild(commentIcon);
-								commentBtn.appendChild(commentCount);
-
-										reactions.appendChild(likeBtn);
-										reactions.appendChild(dislikeBtn);
-										reactions.appendChild(commentBtn);
-										footer.appendChild(reactions);
-										footer.classList.add('justify-content-end');
-									}
+													if (!isGridLayout) {
+														// Reactions row for the classic list layout. We keep the like/dislike
+														// counts visible but disable reacting directly from this view. Users
+														// can still react from the full reader.
+														const reactions = document.createElement('div');
+														reactions.className = 'd-flex align-items-center blog-reactions';
+														reactions.dataset.postId = String(post.id);
+														
+														const likeBtn = document.createElement('button');
+														likeBtn.type = 'button';
+														// Intentionally omit the blog-like-btn class here so list-layout
+														// clicks do not trigger reaction handling. We also treat this as a
+														// static counter, not an interactive control.
+														likeBtn.className = 'btn btn-sm btn-outline-success blog-reaction-btn blog-static-reaction';
+														likeBtn.setAttribute('aria-label', 'Like count');
+														likeBtn.style.cursor = 'default';
+														likeBtn.tabIndex = -1;
+														const likeIcon = document.createElement('span');
+														likeIcon.className = 'blog-reaction-icon';
+														likeIcon.textContent = '👍';
+														const likeCount = document.createElement('span');
+														likeCount.className = 'blog-like-count';
+														likeCount.textContent = String(post.likes_count || 0);
+														likeBtn.appendChild(likeIcon);
+														likeBtn.appendChild(likeCount);
+														
+														const dislikeBtn = document.createElement('button');
+														dislikeBtn.type = 'button';
+														// Same here: omit blog-dislike-btn to prevent direct reactions. Keep
+														// this as a non-interactive counter in the list layout.
+														dislikeBtn.className = 'btn btn-sm btn-outline-danger blog-reaction-btn blog-static-reaction';
+														dislikeBtn.setAttribute('aria-label', 'Dislike count');
+														dislikeBtn.style.cursor = 'default';
+														dislikeBtn.tabIndex = -1;
+														const dislikeIcon = document.createElement('span');
+														dislikeIcon.className = 'blog-reaction-icon';
+														dislikeIcon.textContent = '👎';
+														const dislikeCount = document.createElement('span');
+														dislikeCount.className = 'blog-dislike-count';
+														dislikeCount.textContent = String(post.dislikes_count || 0);
+														dislikeBtn.appendChild(dislikeIcon);
+														dislikeBtn.appendChild(dislikeCount);
+														
+													const commentBtn = document.createElement('button');
+													commentBtn.type = 'button';
+													commentBtn.className = 'btn btn-sm btn-outline-secondary blog-comment-count-btn blog-reaction-btn';
+													commentBtn.setAttribute('aria-label', 'View comments');
+														const commentIcon = document.createElement('i');
+														commentIcon.className = 'bi bi-chat-left-text blog-reaction-icon';
+														const commentCount = document.createElement('span');
+														commentCount.className = 'blog-comment-count';
+														const rawCommentsCount = post && typeof post.comments_count === 'number' ? post.comments_count : 0;
+														commentCount.textContent = String(rawCommentsCount || 0);
+														commentBtn.appendChild(commentIcon);
+														commentBtn.appendChild(commentCount);
+													
+														reactions.appendChild(likeBtn);
+														reactions.appendChild(dislikeBtn);
+														reactions.appendChild(commentBtn);
+														footer.appendChild(reactions);
+														footer.classList.add('justify-content-end');
+													}
 				
 					      if (
 					        (isAdmin && currentUser) ||
@@ -2229,7 +2260,7 @@
 		    });
 		  };
 				
-				  const renderAdminPosts = () => {
+						  const renderAdminPosts = () => {
 				    const tbody = select('#admin-posts-body');
 				    if (!tbody) return;
 				
@@ -2260,7 +2291,7 @@
 				      return date.toLocaleString();
 				    };
 				
-				    allPosts.forEach((post) => {
+						    allPosts.forEach((post) => {
 				      const row = document.createElement('tr');
 				
 				      const titleCell = document.createElement('td');
@@ -2314,44 +2345,84 @@
 				      row.appendChild(createdByCell);
 				      row.appendChild(updatedByCell);
 				
-				      tbody.appendChild(row);
-				    });
-				  };
-
-		  const loadPosts = async () => {
-		    if (!authToken) {
-		      setAuthenticatedUI(false);
-		      return;
-		    }
-		    try {
-			      const posts = await apiRequest('/posts', {
-			        method: 'GET'
-			      });
-			      let normalized = Array.isArray(posts) ? posts : [];
-					      const path = window.location.pathname || '';
-					      const isBlogPage =
-					        path.endsWith('blog.html') ||
-					        path.endsWith('/blog') ||
-					        path.endsWith('/blog/');
-					      const isAdmin = currentUser && currentUser.role === 'admin';
-					      const isEditor = currentUser && currentUser.role === 'editor';
-					      // On the main blog reader page, admins and editors should see the same
-					      // published posts that normal readers do. Drafts remain visible only
-					      // on the dedicated admin page.
-					      if (isBlogPage && (isAdmin || isEditor)) {
-			        normalized = normalized.filter((post) => {
-			          const status = post.status || '';
-			          return status === '' || status === 'published';
-			        });
-			      }
-			      allPosts = normalized;
-			      currentPostsPage = 1;
-			      applyPostFiltersAndRender();
-		    } catch (err) {
-		      console.error(err);
-		      showBlogStatus(err.message || 'Could not load posts.', 'error');
-		    }
-		  };
+						      tbody.appendChild(row);
+						    });
+						  };
+						
+						  const showBlogLoadingState = () => {
+						    const blogApp = select('#blog-app');
+						    const skeleton = select('#blog-skeleton');
+						    const list = select('#posts-list');
+						    const pagination = select('#posts-pagination');
+						    if (blogApp) blogApp.classList.add('blog-loading');
+						    if (list) list.classList.add('d-none');
+						    if (pagination) pagination.classList.add('d-none');
+						    if (skeleton) skeleton.classList.remove('d-none');
+						  };
+						
+						  const hideBlogLoadingState = () => {
+						    const blogApp = select('#blog-app');
+						    const skeleton = select('#blog-skeleton');
+						    const list = select('#posts-list');
+						    const pagination = select('#posts-pagination');
+						    if (blogApp) blogApp.classList.remove('blog-loading');
+						    if (skeleton) skeleton.classList.add('d-none');
+						    if (list) list.classList.remove('d-none');
+						    if (pagination) pagination.classList.remove('d-none');
+						  };
+						
+						  const loadPosts = async () => {
+						    if (!authToken) {
+						      setAuthenticatedUI(false);
+						      blogPostsInitialized = false;
+						      return;
+						    }
+						
+						    const path = window.location.pathname || '';
+						    const isBlogPage =
+						      path.endsWith('blog.html') ||
+						      path.endsWith('/blog') ||
+						      path.endsWith('/blog/');
+						    const isAdmin = currentUser && currentUser.role === 'admin';
+						    const isEditor = currentUser && currentUser.role === 'editor';
+						
+						    // Show the shimmer skeleton only for the first successful load on the
+						    // dedicated blog page. Subsequent refreshes (e.g., after creating a
+						    // post) keep the existing list visible.
+						    const shouldShowSkeleton = isBlogPage && !blogPostsInitialized;
+						    if (shouldShowSkeleton) {
+						      showBlogLoadingState();
+						    }
+						
+						    try {
+						      const posts = await apiRequest('/posts', {
+						        method: 'GET'
+						      });
+						      let normalized = Array.isArray(posts) ? posts : [];
+						
+						      // On the main blog reader page, admins and editors should see the same
+						      // published posts that normal readers do. Drafts remain visible only
+						      // on the dedicated admin page.
+						      if (isBlogPage && (isAdmin || isEditor)) {
+						        normalized = normalized.filter((post) => {
+						          const status = post.status || '';
+						          return status === '' || status === 'published';
+						        });
+						      }
+						
+						      allPosts = normalized;
+						      currentPostsPage = 1;
+						      blogPostsInitialized = true;
+						      applyPostFiltersAndRender();
+						    } catch (err) {
+						      console.error(err);
+						      showBlogStatus(err.message || 'Could not load posts.', 'error');
+						    } finally {
+						      if (shouldShowSkeleton) {
+						        hideBlogLoadingState();
+						      }
+						    }
+						  };
 
 		  const loadAdminUsers = async () => {
 		    const adminPanel = select('#admin-panel');
@@ -2626,30 +2697,52 @@
 			    }
 			  };
 
-								  const handlePostListClick = async (event) => {
-						    	const target = event.target;
-						    	if (!(target instanceof HTMLElement)) return;
-												
-						    	const readerTrigger = target.closest('.blog-toggle-body, .blog-open-reader');
-			    	if (readerTrigger instanceof HTMLElement) {
-			      	const item = readerTrigger.closest('.blog-post-item');
-			      	if (!item) return;
-			      	openPostInReader(item);
-			      	return;
-			    	}
-					
-				    // Reactions (like/dislike) are available to any authenticated user.
-				    const reactionBtn = target.closest('.blog-like-btn, .blog-dislike-btn');
-				    if (reactionBtn instanceof HTMLElement) {
-				      // Prevent navigation (e.g., if cards are wrapped in links on index.html)
-				      // and stop the event from bubbling to outer click handlers.
-				      event.preventDefault();
-				      event.stopPropagation();
-				      await handleReactionClick(reactionBtn);
-				      return;
-				    }
-						
-							    		const isGridLayout = currentPostsLayout === 'grid';
+										  const handlePostListClick = async (event) => {
+									    	const target = event.target;
+									    	if (!(target instanceof HTMLElement)) return;
+																
+									    	// 0) Static reaction counters in the list layout (like/dislike pills
+									    	// marked with .blog-static-reaction) should not trigger any action –
+									    	// they are purely visual.
+									    	if (target.closest('.blog-static-reaction')) {
+									    	  event.preventDefault();
+									    	  event.stopPropagation();
+									    	  return;
+									    	}
+																
+									    	// 1) Comment count in the classic list layout: open the reader and
+									    	// jump straight to the comments section.
+									    	const commentBtn = target.closest('.blog-comment-count-btn');
+									    	if (commentBtn instanceof HTMLElement) {
+									    	  event.preventDefault();
+									    	  event.stopPropagation();
+									    	  const item = commentBtn.closest('.blog-post-item');
+									    	  if (!item) return;
+									    	  openPostInReader(item);
+									    	  focusPostReaderComments();
+									    	  return;
+									    	}
+																
+									    	const readerTrigger = target.closest('.blog-toggle-body, .blog-open-reader');
+					    	if (readerTrigger instanceof HTMLElement) {
+					      	const item = readerTrigger.closest('.blog-post-item');
+					      	if (!item) return;
+					      	openPostInReader(item);
+					      	return;
+					    	}
+							
+						    // Reactions (like/dislike) are available to any authenticated user.
+						    const reactionBtn = target.closest('.blog-like-btn, .blog-dislike-btn');
+						    if (reactionBtn instanceof HTMLElement) {
+						      // Prevent navigation (e.g., if cards are wrapped in links on index.html)
+						      // and stop the event from bubbling to outer click handlers.
+						      event.preventDefault();
+						      event.stopPropagation();
+						      await handleReactionClick(reactionBtn);
+						      return;
+						    }
+								
+									    	const isGridLayout = currentPostsLayout === 'grid';
 							    		if (isGridLayout) {
 							    		  const gridItem = target.closest('.blog-post-item-grid');
 							    		  if (gridItem instanceof HTMLElement) {
@@ -2850,8 +2943,17 @@
 
 									  const updateLayoutToggleUI = () => {
 									    const toggleBtn = select('#blog-layout-toggle');
-									    if (!toggleBtn || !(toggleBtn instanceof HTMLElement)) return;
+									    const blogApp = select('#blog-app');
 									    const isGrid = currentPostsLayout === 'grid';
+									    
+									    // Reflect the active layout on the app container so CSS can
+									    // adjust things like the shimmer skeleton shape.
+									    if (blogApp instanceof HTMLElement) {
+									      blogApp.classList.toggle('blog-layout-grid', isGrid);
+									      blogApp.classList.toggle('blog-layout-list', !isGrid);
+									    }
+									    
+									    if (!toggleBtn || !(toggleBtn instanceof HTMLElement)) return;
 									    // Show the *other* layout as the label (what clicking will switch to)
 									    toggleBtn.textContent = isGrid ? 'List layout' : 'Grid layout';
 									    toggleBtn.setAttribute(
@@ -2863,9 +2965,16 @@
 									  const setPostsLayout = (layout) => {
 									    if (layout !== 'list' && layout !== 'grid') return;
 			    if (layout === currentPostsLayout) return;
-			    currentPostsLayout = layout;
-			    updateLayoutToggleUI();
-			    applyPostFiltersAndRender();
+				    currentPostsLayout = layout;
+				    try {
+				      if (typeof window !== 'undefined' && window.localStorage) {
+				        window.localStorage.setItem('blogPostsLayout', layout);
+				      }
+				    } catch (e) {
+				      // Ignore storage errors (e.g., disabled cookies/private mode).
+				    }
+				    updateLayoutToggleUI();
+				    applyPostFiltersAndRender();
 			  };
 			
 			  const handleLayoutToggleClick = () => {
@@ -2880,8 +2989,20 @@
 					    loadStoredAuth();
 					    await resumeSessionFromRememberMe();
 					    ensurePostReader();
-							
-						    const path = window.location.pathname || '';
+										
+								    // Restore the preferred posts layout (grid/list) from localStorage, if any.
+								    try {
+								      if (typeof window !== 'undefined' && window.localStorage) {
+								        const storedLayout = window.localStorage.getItem('blogPostsLayout');
+								        if (storedLayout === 'grid' || storedLayout === 'list') {
+								          currentPostsLayout = storedLayout;
+								        }
+								      }
+								    } catch (e) {
+								      // If storage is unavailable, just fall back to the default.
+								    }
+								    
+								    const path = window.location.pathname || '';
 				    const isBlogPage =
 				      path.endsWith('blog.html') ||
 				      path.endsWith('/blog') ||

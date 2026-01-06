@@ -104,18 +104,65 @@
   <!-- Main Blog Content -->
   <main id="main" class="blog-main">
 	    <section id="blog" class="blog section-bg">
-		      <div class="container">
-	        <!-- Authenticated welcome message above the posts list -->
-	        <div class="mb-5">
-	          <p id="blog-current-user" class="h4 fw-bold mb-0"></p>
-	        </div>
-		
-		        <div id="blog-status" class="alert d-none mt-1 mb-4" role="alert"></div>
-	
-		        <div id="blog-app" class="blog-app">
-		          <div id="posts-list" class="list-group blog-posts"></div>
-		          <nav id="posts-pagination" class="blog-pagination mt-3 d-flex justify-content-between align-items-center"></nav>
-		        </div>
+      <div class="container">
+        <!-- Authenticated welcome message above the posts list -->
+        <div class="mb-5">
+          <p id="blog-current-user" class="h4 fw-bold mb-0"></p>
+        </div>
+
+        <div id="blog-status" class="alert d-none mt-1 mb-4" role="alert"></div>
+
+	      	<div id="blog-app" class="blog-app">
+	        	  <!-- Shimmer skeleton shown while posts are loading -->
+	        	  <div id="blog-skeleton" class="blog-skeleton d-none" aria-hidden="true">
+	        	    <!-- List layout shimmer: slim rows that match the classic list cards -->
+	        	    <div class="blog-skeleton-list">
+	        	      <div class="blog-skeleton-item mb-2">
+	        	        <div class="blog-skeleton-line blog-skeleton-line-title"></div>
+	        	        <div class="blog-skeleton-line blog-skeleton-line-sub"></div>
+	        	        <div class="blog-skeleton-line blog-skeleton-line-meta"></div>
+	        	      </div>
+	        	      <div class="blog-skeleton-item mb-2">
+	        	        <div class="blog-skeleton-line blog-skeleton-line-title"></div>
+	        	        <div class="blog-skeleton-line blog-skeleton-line-sub"></div>
+	        	        <div class="blog-skeleton-line blog-skeleton-line-meta"></div>
+	        	      </div>
+	        	      <div class="blog-skeleton-item">
+	        	        <div class="blog-skeleton-line blog-skeleton-line-title"></div>
+	        	        <div class="blog-skeleton-line blog-skeleton-line-sub"></div>
+	        	        <div class="blog-skeleton-line blog-skeleton-line-meta"></div>
+	        	      </div>
+	        	    </div>
+	        	    
+	        	    <!-- Grid layout shimmer: card-shaped skeletons that mirror the grid cards -->
+	        	    <div class="blog-skeleton-grid">
+	        	      <div class="blog-skeleton-card">
+	        	        <div class="blog-skeleton-card-header blog-skeleton-line"></div>
+	        	        <div class="blog-skeleton-card-body">
+	        	          <div class="blog-skeleton-line blog-skeleton-line-title"></div>
+	        	          <div class="blog-skeleton-line blog-skeleton-line-meta"></div>
+	        	        </div>
+	        	      </div>
+	        	      <div class="blog-skeleton-card">
+	        	        <div class="blog-skeleton-card-header blog-skeleton-line"></div>
+	        	        <div class="blog-skeleton-card-body">
+	        	          <div class="blog-skeleton-line blog-skeleton-line-title"></div>
+	        	          <div class="blog-skeleton-line blog-skeleton-line-meta"></div>
+	        	        </div>
+	        	      </div>
+	        	      <div class="blog-skeleton-card">
+	        	        <div class="blog-skeleton-card-header blog-skeleton-line"></div>
+	        	        <div class="blog-skeleton-card-body">
+	        	          <div class="blog-skeleton-line blog-skeleton-line-title"></div>
+	        	          <div class="blog-skeleton-line blog-skeleton-line-meta"></div>
+	        	        </div>
+	        	      </div>
+	        	    </div>
+	        	  </div>
+
+          <div id="posts-list" class="list-group blog-posts"></div>
+          <nav id="posts-pagination" class="blog-pagination mt-3 d-flex justify-content-between align-items-center"></nav>
+        </div>
       </div>
     </section>
   </main>
