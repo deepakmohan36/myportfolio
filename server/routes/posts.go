@@ -391,7 +391,7 @@ func deletePost(context *gin.Context) {
 			return
 		}
 
-		if err := models.DeleteComment(commentID); err != nil {
+		if err := models.DeleteComment(commentID, comment.PostID); err != nil {
 			if errors.Is(err, models.ErrCommentNotFound) {
 				c.JSON(http.StatusNotFound, gin.H{"message": "Comment not found"})
 				return

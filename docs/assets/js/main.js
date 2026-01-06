@@ -548,7 +548,7 @@
 										  let currentPostsPage = 1;
 										  let totalPostsPages = 1;
 										  const POSTS_PER_PAGE = 10;
-										  let currentPostsLayout = 'modern'; // 'card' | 'modern'
+								  let currentPostsLayout = 'grid'; // 'list' | 'grid'
 							  let currentPostsSortField = null; // 'title' | 'category' | 'created_at'
 							  let currentPostsSortDirection = 'asc'; // 'asc' | 'desc'
 							  let currentPostsSearchQuery = ''; // free-text search across title, description, category, and body
@@ -877,6 +877,10 @@
 								        postReaderCommentsList.appendChild(li);
 								      });
 								    }
+								
+								    // Keep any comment-count badges in the post list in sync with the
+								    // actual number of comments we just rendered.
+								    syncCommentCountUI(postReaderCurrentPostId, total);
 
 								    if (!postReaderCommentsMoreBtn) return;
 								    if (!postReaderCommentsExpanded) {
@@ -892,6 +896,37 @@
 								      }
 								    } else {
 								      postReaderCommentsMoreBtn.classList.add('d-none');
+								    }
+								  };
+
+								  const syncCommentCountUI = (postId, count) => {
+								    if (!postId) return;
+								    const numericId = Number(postId);
+								    if (!Number.isFinite(numericId) || numericId <= 0) return;
+
+								    const safeCount = typeof count === 'number' && Number.isFinite(count) && count > 0 ? count : 0;
+								    const countText = String(safeCount);
+
+								    // Update any classic-layout cards that have a comment-count pill.
+								    const selector = `.blog-reactions[data-post-id="${numericId}"] .blog-comment-count`;
+								    const badgeNodes = document.querySelectorAll(selector);
+								    badgeNodes.forEach((node) => {
+								      if (node instanceof HTMLElement) {
+								        node.textContent = countText;
+								      }
+								    });
+
+								    // Also reflect the new count in our in-memory posts array so that
+								    // future renders start from the latest value.
+								    if (Array.isArray(allPosts) && allPosts.length > 0) {
+								      const idx = allPosts.findIndex((post) => {
+								        if (!post) return false;
+								        const pid = post.id || post.ID;
+								        return Number(pid) === numericId;
+								      });
+								      if (idx !== -1) {
+								        allPosts[idx].comments_count = safeCount;
+								      }
 								    }
 								  };
 
@@ -1841,12 +1876,12 @@
 								    const list = select('#posts-list');
 								    if (!list) return;
 								    list.innerHTML = '';
-								    
-					    const isModernLayout = currentPostsLayout === 'modern';
-								    
-								    // Mark the container with the active layout so CSS can adapt.
-								    list.classList.toggle('blog-posts-modern', isModernLayout);
-								    list.classList.toggle('blog-posts-card', !isModernLayout);
+						    		    
+									    const isGridLayout = currentPostsLayout === 'grid';
+						    		    
+									    // Mark the container with the active layout so CSS can adapt.
+									    list.classList.toggle('blog-posts-grid', isGridLayout);
+									    list.classList.toggle('blog-posts-list', !isGridLayout);
 							    	    
 					    const path = window.location.pathname || '';
 					    const isAdminPage =
@@ -1874,11 +1909,11 @@
 		      return;
 		    }
 		
-						    // Card / modern layout: rich preview with reactions and actions.
+									    // List / grid layouts: rich preview with reactions and actions.
 								    posts.forEach((post) => {
 				      const item = document.createElement('div');
-				      item.className = isModernLayout
-				        ? 'blog-post-item blog-post-item-modern'
+								      item.className = isGridLayout
+								        ? 'blog-post-item blog-post-item-grid'
 				        : 'list-group-item blog-post-item';
 		      item.dataset.postId = post.id;
 		      item.dataset.title = post.title || '';
@@ -1893,7 +1928,7 @@
 				        item.dataset.coverKey = rawCoverKey;
 				      }
 				
-				      if (isModernLayout) {
+								      if (isGridLayout) {
 				        const coverUrl = resolvePostCoverUrl(rawCoverKey);
 				        if (coverUrl) {
 				          const coverWrapper = document.createElement('div');
@@ -1909,8 +1944,8 @@
 				        }
 				      }
 
-				      const header = document.createElement('div');
-		      header.className = 'd-flex justify-content-between align-items-start mb-1';
+					      const header = document.createElement('div');
+			      header.className = 'd-flex justify-content-between align-items-start mb-0';
 		
 		      const titleWrapper = document.createElement('div');
 		      const title = document.createElement('h5');
@@ -1928,29 +1963,20 @@
 			          dateText = formatPrettyDate(created);
 			        }
 			      }
-			      let metaText = dateText;
-			      if (isModernLayout && post.category) {
-			        const displayCategory = post.category === 'Other' ? 'Others' : post.category;
-			        metaText = dateText ? `${dateText}  b ${displayCategory}` : displayCategory;
-			      }
-			      meta.textContent = metaText;
+			      // List layout no longer surfaces post categories; keep this
+			      // meta line to the relative date only.
+              const metaText = dateText;
+              meta.textContent = metaText;
 			
-			      const metaWrapper = document.createElement('div');
-				        metaWrapper.className = 'd-flex align-items-center gap-2';
-			      if (post.category && !isModernLayout) {
-				          const categoryBadge = document.createElement('span');
-				          categoryBadge.className = 'badge bg-secondary';
-				          const displayCategory = post.category === 'Other' ? 'Others' : post.category;
-				          categoryBadge.textContent = displayCategory;
-				          metaWrapper.appendChild(categoryBadge);
-				        }
-					      if ((isAdmin || isEditor) && post.status === 'draft') {
+              const metaWrapper = document.createElement('div');
+              metaWrapper.className = 'd-flex align-items-center gap-2';
+							        if ((isAdmin || isEditor) && post.status === 'draft') {
 				          const draftBadge = document.createElement('span');
 				          draftBadge.className = 'badge bg-warning text-dark';
 				          draftBadge.textContent = 'Draft';
 				          metaWrapper.appendChild(draftBadge);
 				        }
-				        if (!isModernLayout) {
+							        if (!isGridLayout) {
 				          metaWrapper.appendChild(meta);
 				        }
 		
@@ -1959,61 +1985,77 @@
 		
 		      item.appendChild(header);
 		
-			      // Only show the short description in the classic card layout.
-			      // Modern layout cards stay cleaner with just title + meta.
-			      if (post.description && !isModernLayout) {
-			        const descriptionEl = document.createElement('p');
-			        descriptionEl.className = 'mb-1 text-muted small';
-			        descriptionEl.textContent = post.description;
-			        item.appendChild(descriptionEl);
-			      }
+								      // Only show the short description in the classic list layout.
+								      // Grid layout cards stay cleaner with just title + meta.
+								      if (post.description && !isGridLayout) {
+					        const descriptionEl = document.createElement('p');
+					        descriptionEl.className = 'mt-2 mb-1 text-muted small';
+					        descriptionEl.textContent = post.description;
+					        item.appendChild(descriptionEl);
+					      }
 					
-				      // We no longer render the body content snippet in the cards layout.
+						      // We no longer render the body content snippet in the list/grid layouts.
 				      // Full post content is available via the centered reader view and
 				      // the admin edit form.
 		
-					      // Footer row: reactions on the left (card layout only), expand icon
-					      // or date on the right.
-					      const footer = document.createElement('div');
-					      footer.className = 'd-flex align-items-center justify-content-between mt-1 blog-post-footer';
+										// Footer row: reactions and meta. In the classic list layout we show
+										// a compact cluster of reaction pills on the bottom-right; in the
+										// grid layout the footer holds date (+ optional category badge).
+										const footer = document.createElement('div');
+										footer.className = 'd-flex align-items-center mt-1 blog-post-footer';
 									
-					      if (!isModernLayout) {
-					        // Reactions: like/dislike controls and counters, available to all
-					        // authenticated users (the page itself is already gated by auth).
-					        const reactions = document.createElement('div');
-					        reactions.className = 'd-flex align-items-center blog-reactions';
-					        reactions.dataset.postId = String(post.id);
-									
-					        const likeBtn = document.createElement('button');
-					        likeBtn.type = 'button';
-					        likeBtn.className = 'btn btn-sm btn-outline-success blog-like-btn blog-reaction-btn';
-					        likeBtn.setAttribute('aria-label', 'Like post');
-					        const likeIcon = document.createElement('span');
-					        likeIcon.className = 'blog-reaction-icon';
-					        likeIcon.textContent = '👍';
-					        const likeCount = document.createElement('span');
-					        likeCount.className = 'blog-like-count';
-					        likeCount.textContent = String(post.likes_count || 0);
-					        likeBtn.appendChild(likeIcon);
-					        likeBtn.appendChild(likeCount);
-									
-					        const dislikeBtn = document.createElement('button');
-					        dislikeBtn.type = 'button';
-					        dislikeBtn.className = 'btn btn-sm btn-outline-danger blog-dislike-btn blog-reaction-btn';
-					        dislikeBtn.setAttribute('aria-label', 'Dislike post');
-					        const dislikeIcon = document.createElement('span');
-					        dislikeIcon.className = 'blog-reaction-icon';
-					        dislikeIcon.textContent = '👎';
-					        const dislikeCount = document.createElement('span');
-					        dislikeCount.className = 'blog-dislike-count';
-					        dislikeCount.textContent = String(post.dislikes_count || 0);
-					        dislikeBtn.appendChild(dislikeIcon);
-					        dislikeBtn.appendChild(dislikeCount);
-									
-					        reactions.appendChild(likeBtn);
-					        reactions.appendChild(dislikeBtn);
-					        footer.appendChild(reactions);
-					      }
+									if (!isGridLayout) {
+										// Reactions: like/dislike controls and counters, plus a read-only
+										// comment count pill, available to all authenticated users.
+										const reactions = document.createElement('div');
+										reactions.className = 'd-flex align-items-center blog-reactions';
+										reactions.dataset.postId = String(post.id);
+
+										const likeBtn = document.createElement('button');
+										likeBtn.type = 'button';
+										likeBtn.className = 'btn btn-sm btn-outline-success blog-like-btn blog-reaction-btn';
+										likeBtn.setAttribute('aria-label', 'Like post');
+										const likeIcon = document.createElement('span');
+										likeIcon.className = 'blog-reaction-icon';
+										likeIcon.textContent = '👍';
+										const likeCount = document.createElement('span');
+										likeCount.className = 'blog-like-count';
+										likeCount.textContent = String(post.likes_count || 0);
+										likeBtn.appendChild(likeIcon);
+										likeBtn.appendChild(likeCount);
+
+										const dislikeBtn = document.createElement('button');
+										dislikeBtn.type = 'button';
+										dislikeBtn.className = 'btn btn-sm btn-outline-danger blog-dislike-btn blog-reaction-btn';
+										dislikeBtn.setAttribute('aria-label', 'Dislike post');
+										const dislikeIcon = document.createElement('span');
+										dislikeIcon.className = 'blog-reaction-icon';
+										dislikeIcon.textContent = '👎';
+										const dislikeCount = document.createElement('span');
+										dislikeCount.className = 'blog-dislike-count';
+										dislikeCount.textContent = String(post.dislikes_count || 0);
+										dislikeBtn.appendChild(dislikeIcon);
+										dislikeBtn.appendChild(dislikeCount);
+
+								const commentBtn = document.createElement('button');
+								commentBtn.type = 'button';
+								commentBtn.className = 'btn btn-sm btn-outline-secondary blog-comment-count-btn blog-reaction-btn';
+								commentBtn.setAttribute('aria-label', 'View comments');
+								const commentIcon = document.createElement('i');
+								commentIcon.className = 'bi bi-chat-left-text blog-reaction-icon';
+								const commentCount = document.createElement('span');
+								commentCount.className = 'blog-comment-count';
+								const rawCommentsCount = post && typeof post.comments_count === 'number' ? post.comments_count : 0;
+								commentCount.textContent = String(rawCommentsCount || 0);
+								commentBtn.appendChild(commentIcon);
+								commentBtn.appendChild(commentCount);
+
+										reactions.appendChild(likeBtn);
+										reactions.appendChild(dislikeBtn);
+										reactions.appendChild(commentBtn);
+										footer.appendChild(reactions);
+										footer.classList.add('justify-content-end');
+									}
 				
 					      if (
 					        (isAdmin && currentUser) ||
@@ -2037,43 +2079,27 @@
 		        item.appendChild(actions);
 		      }
 					
-					      // Footer content varies slightly by layout.
-					      if (isModernLayout) {
-					        // In modern layout, keep relative date on the left and
-					        // category badge on the right within the same row.
-					        let dateOnlyText = '';
-					        if (post.created_at) {
-					          const created = new Date(post.created_at);
-					          if (!Number.isNaN(created.getTime())) {
-					            dateOnlyText = formatPrettyDate(created);
-					          }
-					        }
-					        meta.textContent = dateOnlyText;
-					        meta.classList.add('small');
+							        // Footer content varies slightly by layout.
+										if (isGridLayout) {
+							        // In grid layout, keep a simple relative date row; categories
+				        // are no longer shown on the card itself.
+				        let dateOnlyText = '';
+				        if (post.created_at) {
+				          const created = new Date(post.created_at);
+				          if (!Number.isNaN(created.getTime())) {
+				            dateOnlyText = formatPrettyDate(created);
+				          }
+				        }
+								meta.textContent = dateOnlyText;
+								meta.classList.add('small');
+								footer.classList.add('justify-content-start');
 					
-					        // Left side: relative date
-					        footer.appendChild(meta);
-					
-					        // Right side: category badge (if any)
-					        if (post.category) {
-					          const footerCategory = document.createElement('span');
-					          footerCategory.className = 'badge bg-secondary';
-					          const displayCategory = post.category === 'Other' ? 'Others' : post.category;
-					          footerCategory.textContent = displayCategory;
-					          footer.appendChild(footerCategory);
-					        }
-					      } else {
-						        // In card layout, keep a discrete expand button on the right.
-						        const openBtn = document.createElement('button');
-						        openBtn.type = 'button';
-						        openBtn.className = 'btn btn-link btn-sm p-0 blog-open-reader';
-						        openBtn.setAttribute('aria-label', 'Expand post');
-						        const openIcon = document.createElement('span');
-						        openIcon.className = 'arrow blog-open-reader-icon';
-						        openBtn.appendChild(openIcon);
-						        footer.appendChild(openBtn);
-						      }
-						      item.appendChild(footer);
+				        // Left side: relative date
+				        footer.appendChild(meta);
+				      }
+						      // In the classic list layout, the entire card is clickable to open the
+				      // reader, so we do not render a separate expand button here.
+				      item.appendChild(footer);
 					
 				      list.appendChild(item);
 		    });
@@ -2605,12 +2631,12 @@
 						    	if (!(target instanceof HTMLElement)) return;
 												
 						    	const readerTrigger = target.closest('.blog-toggle-body, .blog-open-reader');
-		    	if (readerTrigger instanceof HTMLElement) {
-		      	const item = readerTrigger.closest('.blog-post-item');
-		      	if (!item) return;
-		      	openPostInReader(item);
-		      	return;
-		    	}
+			    	if (readerTrigger instanceof HTMLElement) {
+			      	const item = readerTrigger.closest('.blog-post-item');
+			      	if (!item) return;
+			      	openPostInReader(item);
+			      	return;
+			    	}
 					
 				    // Reactions (like/dislike) are available to any authenticated user.
 				    const reactionBtn = target.closest('.blog-like-btn, .blog-dislike-btn');
@@ -2623,23 +2649,38 @@
 				      return;
 				    }
 						
-				    const isModernLayout = currentPostsLayout === 'modern';
-				    if (isModernLayout) {
-				      const modernItem = target.closest('.blog-post-item-modern');
-				      if (modernItem instanceof HTMLElement) {
-				        // Do not intercept clicks on reaction buttons or admin controls.
-				        if (
-				          target.closest('.blog-reactions') ||
-				          target.classList.contains('blog-edit-post') ||
-				          target.classList.contains('blog-delete-post')
-				        ) {
-				          // Let the dedicated handlers above/below deal with these.
-				        } else {
-				          openPostInReader(modernItem);
-				          return;
-				        }
-				      }
-				    }
+							    		const isGridLayout = currentPostsLayout === 'grid';
+							    		if (isGridLayout) {
+							    		  const gridItem = target.closest('.blog-post-item-grid');
+							    		  if (gridItem instanceof HTMLElement) {
+						        // Do not intercept clicks on admin controls; everything else in
+						        // the card (including the reactions cluster) opens the reader.
+						        if (
+						          target.classList.contains('blog-edit-post') ||
+						          target.classList.contains('blog-delete-post')
+						        ) {
+						          // Let the dedicated handlers above/below deal with these.
+						        } else {
+							    		      openPostInReader(gridItem);
+						          return;
+						        }
+						      	}
+							    		} else {
+							    		  // Classic list layout: clicking anywhere on the card opens the reader,
+							      // except for admin controls (handled above/below).
+						      	const cardItem = target.closest('.blog-post-item');
+						      	if (cardItem instanceof HTMLElement) {
+						        if (
+						          target.classList.contains('blog-edit-post') ||
+						          target.classList.contains('blog-delete-post')
+						        ) {
+						          // Let the dedicated handlers manage these.
+						        } else {
+						          openPostInReader(cardItem);
+						          return;
+						        }
+						      	}
+						    	}
 						
 					    // Only admins and editors are allowed to edit or delete posts. The server
 				    // enforces this as well, but we short-circuit here for the UI.
@@ -2810,17 +2851,17 @@
 									  const updateLayoutToggleUI = () => {
 									    const toggleBtn = select('#blog-layout-toggle');
 									    if (!toggleBtn || !(toggleBtn instanceof HTMLElement)) return;
-									    const isModern = currentPostsLayout === 'modern';
+									    const isGrid = currentPostsLayout === 'grid';
 									    // Show the *other* layout as the label (what clicking will switch to)
-									    toggleBtn.textContent = isModern ? 'Card layout' : 'Modern layout';
+									    toggleBtn.textContent = isGrid ? 'List layout' : 'Grid layout';
 									    toggleBtn.setAttribute(
 									      'aria-label',
-									      isModern ? 'Switch to card layout' : 'Switch to modern layout',
+									      isGrid ? 'Switch to list layout' : 'Switch to grid layout',
 									    );
 									  };
 									  
 									  const setPostsLayout = (layout) => {
-									    if (layout !== 'card' && layout !== 'modern') return;
+									    if (layout !== 'list' && layout !== 'grid') return;
 			    if (layout === currentPostsLayout) return;
 			    currentPostsLayout = layout;
 			    updateLayoutToggleUI();
@@ -2828,7 +2869,7 @@
 			  };
 			
 			  const handleLayoutToggleClick = () => {
-			    const nextLayout = currentPostsLayout === 'modern' ? 'card' : 'modern';
+					    const nextLayout = currentPostsLayout === 'grid' ? 'list' : 'grid';
 			    setPostsLayout(nextLayout);
 			  };
 

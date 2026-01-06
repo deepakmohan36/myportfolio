@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"strconv"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -59,6 +60,15 @@ func CreateComment(postID, userID int64, authorName, content string) (*Comment, 
 	ref, _, err := postCommentsCollection().Add(ctx, doc)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create comment: %w", err)
+	}
+
+	// Best-effort increment of the aggregate comments_count on the parent post.
+	// If this update fails, we keep the comment but the counter may be briefly
+	// out of sync until the next write or a manual backfill.
+	if postID > 0 {
+		_, _ = postsCollection().Doc(strconv.FormatInt(postID, 10)).Update(ctx, []firestore.Update{
+			{Path: "comments_count", Value: firestore.Increment(1)},
+		})
 	}
 
 	return &Comment{
@@ -193,14 +203,22 @@ func UpdateCommentContent(id string, userID int64, newContent string) (*Comment,
 	}, nil
 }
 
-// DeleteComment removes a comment document by ID.
-func DeleteComment(id string) error {
+// DeleteComment removes a comment document by ID and best-effort decrements
+// the owning post's aggregate comments_count.
+func DeleteComment(id string, postID int64) error {
 	ctx := context.Background()
 	if _, err := postCommentsCollection().Doc(id).Delete(ctx); err != nil {
 		if status.Code(err) == codes.NotFound {
 			return ErrCommentNotFound
 		}
 		return fmt.Errorf("failed to delete comment: %w", err)
+	}
+
+	// Best-effort decrement of the aggregate comments_count on the parent post.
+	if postID > 0 {
+		_, _ = postsCollection().Doc(strconv.FormatInt(postID, 10)).Update(ctx, []firestore.Update{
+			{Path: "comments_count", Value: firestore.Increment(-1)},
+		})
 	}
 	return nil
 }
