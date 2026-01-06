@@ -84,11 +84,15 @@ h6 {
 }
 
 #header .profile img {
-  margin: 15px auto;
-  display: block;
-  width: 120px;
-  border: 8px solid #2c2f3f;
-}
+	  margin: 10px auto 20px;
+	  display: block;
+	  width: 150px;
+	  height: 150px;
+	  border-radius: 50%;
+	  object-fit: cover;
+	  object-position: center;
+	  border: 8px solid #2c2f3f;
+	}
 
 #header .profile h1 {
   font-size: 24px;
@@ -305,17 +309,25 @@ h6 {
 }
 
 @media (max-width: 768px) {
-  #hero h1 {
-    font-size: 28px;
-    line-height: 36px;
-  }
+	  #hero h1 {
+	    font-size: 28px;
+		    line-height: 1;
+	  }
 
-  #hero h2 {
-    font-size: 18px;
-    line-height: 24px;
-    margin-bottom: 30px;
-  }
-}
+	  #hero h2 {
+	    font-size: 18px;
+	    line-height: 24px;
+	    margin-bottom: 30px;
+	  }
+
+	  /* On small screens, reposition the sidebar toggle so it aligns visually
+	     with the profile photo on the left and avoids the theme toggle. */
+	  .mobile-nav-toggle {
+	    top: 22px;
+	    left: 18px;
+	    right: auto;
+	  }
+	}
 
 /*--------------------------------------------------------------
 # Sections General
@@ -360,6 +372,35 @@ section {
 /*--------------------------------------------------------------
 # About
 --------------------------------------------------------------*/
+.about .about-photo-col {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.about .about-photo {
+		max-width: 380px;
+		width: 100%;
+		height: auto;
+		border-radius: 16px;
+	}
+
+@media (min-width: 992px) {
+	.about .about-photo-col {
+	  margin-bottom: 0;
+	  text-align: left;
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	}
+
+	.about .content {
+	  display: flex;
+	  flex-direction: column;
+	  justify-content: flex-start;
+	  padding-top: 10px;
+	}
+}
+
 .about .content h3 {
   font-weight: 700;
   font-size: 26px;
@@ -1335,7 +1376,6 @@ section {
 .dark-theme #hero h1 {
   font-size: 56px;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .dark-theme #hero p {
